@@ -1,0 +1,39 @@
+{
+    "id" : "cc2f87dec2e6d9c71a57af13",
+    "schema": "ClothoSchema",
+    "language": "JSONSCHEMA",
+    "name": "Chapter",
+    "description": "Unit within Trails, containing Pages or a TrailTransclude (you must define one, and only one)",
+    "fields": [
+        {
+            "name": "chapter",
+            "type": "string",
+            "description": "Title of Chapter",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "pages",
+            "type": "array",
+            "description": "Array of Pages.",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.util.List",
+            "reference": false
+        },
+        {
+            "name": "transclude",
+            "type": "object",
+            "description": "see TrailTransclude schema. define 'id' and 'chapters'",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.util.HashMap",
+            "reference": false
+        }
+    ]
+}

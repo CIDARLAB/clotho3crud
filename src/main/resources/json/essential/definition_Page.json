@@ -1,0 +1,149 @@
+{
+    "id" : "cc2f87dec2e6d9c71a57af11",
+    "schema": "ClothoSchema",
+    "language": "JSONSCHEMA",
+    "name": "Page",
+    "description": "Defines the content for each unit of a Trail. Content fields are (from top to bottom of rendered page): intro, video, template, quiz, outro. Files can be added via (ordered by load time): mixin, css, script, <render content>, onload",
+    "fields": [
+        {
+            "name": "title",
+            "type": "string",
+            "description": "Title of the Page",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "icon",
+            "type": "string",
+            "description": "icon to use for Trail sidenav",
+            "example": "Options include: 'quiz', 'template', 'video', 'exercise'",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "intro",
+            "type": "string",
+            "description": "HTML to display at top of Page content",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "video",
+            "type": "string",
+            "description": "YouTube VideoID or link to Youtube video. Can also be an object, where: <code>obj.id</code> is the ID or link to the YouTube video, <code>obj.params</code> is an object as defined by the YouTube iFrame API, <code>obj.mini</code> dictates whether the video starts in small form, and <code>obj.autoplay</code> dictates whether the video should play immediately",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "template",
+            "type": "string",
+            "description": "URL of template to include",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "quiz",
+            "type": "object",
+            "description": "See the Quiz schema",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.util.HashMap",
+            "reference": false
+        },
+        {
+            "name": "outro",
+            "type": "string",
+            "description": "HTML to display at bottom of Page content",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "hint",
+            "type": "string",
+            "description": "text to display as a hint ",
+            "example": "Your hint shouldn't have HTML (yet)",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "controller",
+            "type": "string",
+            "description": "Name of controller to apply for whole Page (all content components) - must already be included (e.g. via mixin())",
+            "example": "MyController",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "mixin",
+            "type": "string",
+            "description": "URL of javascript file containing script or Angular component to add (filter, controller, service, directive, factory, provider, etc.). Will only be downloaded once. Angular components must be prefixed Application.Extensions.___ .... Will be added to the stack before the Page and relevant controllers are instantiated.",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "css",
+            "type": "string",
+            "description": "URL of CSS to be downloaded, will only be downloaded one time and before Page is instantiated.",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "script",
+            "type": "string",
+            "description": "URL of javascript file containing a script to to execute before the Page loads. Will be executed every time the Page is loaded.",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "onload",
+            "type": "string",
+            "description": "URL of javascript file to be executed after the Page has loaded and been inserted into the DOM.",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.lang.String",
+            "reference": false
+        },
+        {
+            "name": "dictionary",
+            "type": "object",
+            "description": "object with keyvals which will extend the Angular Scope, and therefore be used for templating (so all HTML, templates, and quizzes can use the dictionary)",
+            "example": "",
+            "constraints": null,
+            "access": "PUBLIC",
+            "javaType": "java.util.HashMap",
+            "reference": false
+        }
+    ]
+}

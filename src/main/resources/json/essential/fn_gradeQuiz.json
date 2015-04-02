@@ -1,0 +1,34 @@
+{
+    "schema": "Function",
+    "id": "5232646bc2e62b40e89c0d6b",
+    "tests": 
+        [ {
+            "args": [
+                "value",
+            "value",
+            "5232a9e95ce620f042e5825f"
+                ],
+            "output": {
+                "value": "VALUE",
+                "type": ""
+            }
+        }
+    ],
+        "args": [
+        {
+            "name": "questionValue",
+            "type": "string"
+        },
+        {
+            "name": "input",
+            "type": "string"
+        },
+        {
+            "type": "Function",
+            "name": "genAnswer"
+        }
+    ],
+        "name": "gradeQuiz",
+        "language": "JAVASCRIPT",
+        "code": "function gradeQuiz (questionValue, input, genAnswer) { var answerFunc = clotho.load(genAnswer); var answer = answerFunc(questionValue); return (answer == input || answer.toLowerCase() == input.toLowerCase()); };"
+}

@@ -1,0 +1,7 @@
+Things left in Interpreter to properly hook up with Router:
+    1. AutoComplete (working on that now, learning the algorithm from an
+                     not functional.)
+        Now functional, and in testing mode.
+
+    2. UI for forgetting commands. (not sure how to implement this one
+                                    yet).

@@ -1,0 +1,13 @@
+bin
+.classpath
+.project
+/target/
+/database/
+/nbactions.xml
+.settings
+data/
+.orig
+*.pyc
+
+.idea
+.DS_Store
