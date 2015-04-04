@@ -25,14 +25,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityNotFoundException;
 import javax.script.Bindings;
 import javax.script.SimpleBindings;
 import javax.validation.ConstraintViolation;
@@ -45,11 +42,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.util.ByteSource;
 import org.apache.shiro.util.SimpleByteSource;
-import org.clothocad.core.aspects.Interpreter.RadixTrie.PatriciaTrie;
-import org.clothocad.core.aspects.Interpreter.RadixTrie.Trie;
-import org.clothocad.core.communication.ServerSideAPI;
-import org.clothocad.core.datums.ObjectId;
-import org.clothocad.core.persistence.Persistor;
 import org.clothocad.core.persistence.jackson.JSONViews;
 import org.clothocad.core.persistence.jackson.SimpleHashDeserializer;
 import org.clothocad.core.util.JSON.UseTypeInfoForCredentials;
@@ -185,7 +177,6 @@ public class JSON {
             
             //Default types for interfaces unknown to Jackson
             context.setMixInAnnotations(Bindings.class, UseSimpleBindings.class);
-            context.setMixInAnnotations(Trie.class, UsePatriciaTrie.class);
             context.setMixInAnnotations(PrincipalCollection.class, UseSimplePrincipalCollection.class);
             
             //serializers and typeinfo for shiro classes
@@ -215,9 +206,6 @@ public class JSON {
     @JsonDeserialize(as = SimpleBindings.class)
     static abstract class UseSimpleBindings{}
     
-    @JsonDeserialize(as = PatriciaTrie.class)
-    static abstract class UsePatriciaTrie {}
-    
     @JsonDeserialize(as = SimplePrincipalCollection.class)
     static abstract class UseSimplePrincipalCollection {}
     
@@ -245,63 +233,5 @@ public class JSON {
         protected PrincipalCollection principals;
         @JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="$class")
         protected Object credentials;
-    }
-    
-    //XXX: move to test utils
-    public static void importTestJSON(String path, Persistor persistor, boolean overwrite) {
-        ServerSideAPI api = new DummyAPI(persistor);
-        ObjectReader reader = new ObjectMapper().reader(Map.class);
-
-        List<Map> objects = new ArrayList<>();
-        for (File child : new File(path).listFiles()) {
-            if (!child.getName().endsWith(".json")) {
-                continue;
-            }
-            try {
-                MappingIterator<Map> it = reader.readValues(child);
-                while (it.hasNext()) {
-                    objects.add(it.next());
-                }
-
-            } catch (JsonProcessingException ex) {
-                log.warn("Could not process {} as JSON", child.getAbsolutePath());
-            } catch (IOException ex) {
-                log.warn("Could not open {}", child.getAbsolutePath());
-            }
-        }
-
-        while (objects.size() > 0) {
-            int prevSize = objects.size();
-            List<Map> newObjects = new ArrayList();
-
-            for (Map obj : objects) {
-                if (!overwrite) {
-                    try {
-                        if ( obj.containsKey("id") && persistor.has(new ObjectId(obj.get("id"))))
-                            continue;
-
-                    } catch (EntityNotFoundException e) {
-                    }
-                }
-                try {
-                    ObjectId result = api.create(obj);
-
-                    if (overwrite && result == null) {
-                        api.set(obj);
-                    }
-                } catch (RuntimeException e) {
-                    newObjects.add(obj);
-                } catch (ClassCircularityError e) {
-                    e.getMessage();
-                }
-            }
-
-            objects = newObjects;
-            if (objects.size() >= prevSize) {
-                log.error("Could not load some files: {}", objects.toString());
-                return;
-            }
-
-        }
     }
 }

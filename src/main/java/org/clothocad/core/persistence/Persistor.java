@@ -51,7 +51,6 @@ import org.apache.shiro.authz.AuthorizationException;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.subject.Subject;
 import static org.clothocad.core.ReservedFieldNames.*;
-import org.clothocad.core.aspects.Interpreter.GlobalTrie;
 import org.clothocad.core.datums.ObjectId;
 import org.clothocad.core.persistence.jackson.JSONFilter;
 import org.clothocad.core.schema.BuiltInSchema;
@@ -104,8 +103,6 @@ public class Persistor{
     
     private Converters converters;
     
-    private GlobalTrie globalTrie;
-    
     @Inject
     public Persistor(final ClothoConnection connection, ClothoRealm realm){
         this(connection, realm, true);
@@ -118,7 +115,6 @@ public class Persistor{
        // if (initializeBuiltins) initializeBuiltInSchemas();
         
         converters = new Converters();       
-        globalTrie = new GlobalTrie(connection.getCompletionData());
     }
     
     protected void validate(ObjBase obj){
@@ -239,9 +235,6 @@ public class Persistor{
 
         //recurse in persistor
         connection.saveAll(filteredObjects);
-        for (ObjBase object : filteredObjects){
-            globalTrie.put(object);
-        }
         return obj.getId();
     }
 
@@ -284,9 +277,6 @@ public class Persistor{
         
         stripVirtualFields(data);
         connection.save(data);
-
-        //Update the GlobalTrie with the new object
-        globalTrie.put(data);
 
         return new ObjectId(data.get(ID).toString());
     }
@@ -764,11 +754,6 @@ public class Persistor{
     
     public Schema resolveSchemaFromClassName(String className){
         return connection.get(Schema.class, new ObjectId(className));
-    }
-    
- 
-    public Iterable<Map<String,Object>> getCompletions(String word){
-        return filterByPermission(globalTrie.getCompletions(word), view);
     }
 
     public Object get(ObjectId objectId) throws EntityNotFoundException {
