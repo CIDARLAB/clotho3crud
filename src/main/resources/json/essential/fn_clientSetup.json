@@ -1,7 +1,0 @@
-{
-    "schema": "Function",
-    "id": "5241015ac2e6fa3eccdcf945",
-    "name": "clientSetup",
-    "code": "function() {\nDNA = clotho.load('DNA');\nDigest = clotho.load('Digest');\nPCR = clotho.load('PCR');\n};",
-    "language":"JAVASCRIPT"
-}
