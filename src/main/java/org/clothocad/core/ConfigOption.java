@@ -7,25 +7,14 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 public enum ConfigOption {
-    port("HTTP listening port", "8080", "port"),
-    confidentialport("HTTPS listening port", "8443", "port"),
     dbname("database name", "clotho", "name"),
     dbhost("database url hostname", "localhost", "hostname"),
     dbport("database url port", "27017", "port"),
     // loglevel,
-    keystorepath("SSL keystore path",
-                Paths.get(System.getProperty("java.home"))
-                   .resolve(Paths.get("lib", "security", "cacerts"))
-                   .toString(),
-                "path"),
-    keystorepass("SSL keystore password", "", "password"),
     configfile("path to configuration file",
                 Paths.get(System.getProperty("user.home"))
                     .resolve(Paths.get(".clothoconfig"))
                     .toString(),
-                "path"),
-    clientdirectory("path to client files directory",
-                Paths.get("clotho3-web", "dist").toString(),
                 "path");
 
     final String description;
