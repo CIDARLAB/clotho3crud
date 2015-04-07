@@ -17,17 +17,17 @@ import org.clothocad.core.schema.Schema;
  *
  * @author spaige
  */
-public class BasicPartConverter extends Converter<BasicPart> {
+public class BasicPartConverter extends Converter<Part> {
         static Set<String> names = new HashSet<String>();
         static {
             names.add("eugene.dom.components.Part");
         }
     public BasicPartConverter(Persistor p) {
-        super(p.get(Schema.class, new ObjectId("org.clothocad.model.BasicPart")), new HashSet<Schema>(), names);
+        super(p.get(Schema.class, new ObjectId("org.clothocad.model.Part")), new HashSet<Schema>(), names);
     }
 
     @Override
-    protected BasicPart guardedConvert(Map data, String schemaName) {
+    protected Part guardedConvert(Map data, String schemaName) {
         switch (schemaName){
             case "eugene.dom.components.Part":
                 return convertEugenePartToBasicPart(data);
@@ -37,20 +37,27 @@ public class BasicPartConverter extends Converter<BasicPart> {
         
     }
 
-    public static BasicPart convertEugenePartToBasicPart(Map<String, Object> eugenePart) {
-        BasicPart part = new BasicPart(eugenePart.get("Name").toString(), null, eugenePart.get("Sequence").toString(), new FreeForm(), null);
-        if (eugenePart.containsKey("_id")) part.setId(new ObjectId(eugenePart.get("_id").toString()));
-        try {
-            Part.PartFunction function = Part.PartFunction.valueOf(eugenePart.get("PartType").toString().toUpperCase());
-            part.setType(function);
-        } catch (IllegalArgumentException e) {
-        }
-
+    public static Part convertEugenePartToBasicPart(Map<String, Object> eugenePart) {
+    	Person author = new Person("Anonymous");
+    	Sequence partSeq = new SimpleSequence(eugenePart.get("Sequence").toString(), author);
+    	Part part = new Part(eugenePart.get("Name").toString(), partSeq, author);
+    	if (eugenePart.containsKey("_id")) 
+    		part.setId(new ObjectId(eugenePart.get("_id").toString()));
+    	try {
+    		Feature feature = new Feature(eugenePart.get("Name").toString(), 
+    				Feature.FeatureRole.valueOf(eugenePart.get("PartType").toString().toUpperCase()),
+    				author);
+    		feature.setSequence(partSeq);
+    		Annotation seqAnnotation = partSeq.createAnnotation(eugenePart.get("Name").toString(),
+    				0, partSeq.getSequence().length() - 1, true, author);
+    		seqAnnotation.setFeature(feature);
+    	} catch (IllegalArgumentException e) {
+    	}
         return part;
     }
 
     @Override
-    protected BasicPart guardedConvert(Map data, Schema type) {
+    protected Part guardedConvert(Map data, Schema type) {
         if (type instanceof InferredSchema ){
             return guardedConvert(data, type.getName());
         }

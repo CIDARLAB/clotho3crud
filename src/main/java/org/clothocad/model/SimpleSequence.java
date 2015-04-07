@@ -1,25 +1,21 @@
 package org.clothocad.model;
 
-import javax.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.Setter;
-import org.clothocad.core.datums.ObjBase;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author spaige
+ * @author Nicholas Roehner
  */
-public class SimpleSequence extends ObjBase {
-    
-    public SimpleSequence(String name, String sequence){
-        super(name);
-        this.sequence = sequence;
+@NoArgsConstructor
+public class SimpleSequence extends Sequence {
+	
+	public SimpleSequence(String sequence, Person author){
+        super("Simple Seq", sequence, author);
     }
-    @Getter
-    @Setter
-    @Pattern(regexp="[ATUCGRYKMSWBDHVN]*", flags={Pattern.Flag.CASE_INSENSITIVE})
-    String sequence;
     
-    
+    public SimpleSequence(String name, String sequence, Person author){
+        super(name, sequence, author);
+    }
     
 }

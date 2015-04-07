@@ -3,9 +3,11 @@ package org.clothocad.core;
 import org.clothocad.core.persistence.Persistor;
 import org.clothocad.core.persistence.jongo.JongoModule;
 import org.clothocad.core.security.nosecurity.NoSecurityModule;
-import org.clothocad.model.BasicPart;
 import org.clothocad.model.FreeForm;
 import org.clothocad.model.Part;
+import org.clothocad.model.Person;
+import org.clothocad.model.Sequence;
+import org.clothocad.model.SimpleSequence;
 
 public class PersistorModularityDemo {
     public static void main(String[] args) {
@@ -20,9 +22,12 @@ public class PersistorModularityDemo {
 
         //get a persistor
         Persistor p = builder.get(Persistor.class);
-
+        
         //use the persistor to do stuff
-        Part part = new BasicPart("Test Part", "this is a test part", "ATCG", new FreeForm(), null);
+        Person demoPerson = new Person("Demo Person");
+        Sequence demoSeq = new SimpleSequence("ATCG", demoPerson);
+        Part part = new Part("Demo Part", "This is a demo part.", demoSeq, demoPerson);
+        part.setFormat(new FreeForm());
 
         p.save(part);
 

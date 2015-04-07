@@ -1,38 +1,64 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.clothocad.model;
 
 import java.util.List;
+
+import lombok.NoArgsConstructor;
+
+import org.clothocad.core.datums.SharableObjBase;
 import org.clothocad.model.Format;
-import org.clothocad.model.NucSeq;
 import org.clothocad.model.Part;
 
 /**
  *
  * @author spaige
+ * @author Nicholas Roehner
  */
-public class FreeForm implements Format {
+@NoArgsConstructor
+public class FreeForm extends SharableObjBase implements Format  {
 
-	@Override
+	public FreeForm(Person author) {
+		super("FreeForm", author);
+	}
+	
+	public FreeForm(String description, Person author) {
+		super("FreeForm", author, description);
+	}
+	
     public boolean checkPart(Part p) {
         return true;
     }
 
-	@Override
-    public boolean checkComposite(List<Part> composition, Object additionalRequirements) {
+    public boolean checkComposite(List<Part> subParts) {
         return true;
     }
-
-	@Override
-    public NucSeq generateCompositeSequence(List<Part> composition, Object additionalRequirements) {
-        //XXX: dummy implementation
-        StringBuilder builder = new StringBuilder();
-        for (Part part : composition){
-            builder.append(part.getSequence().getSeq());
-        }
-        return new NucSeq(builder.toString());
+    
+    public Part generateCompositePart(String name, List<Part> subParts, Person author) {
+    	Sequence compositeSeq = buildCompositeSequence(subParts, author);
+        Part compositePart = new Part(name, compositeSeq, author);
+        compositePart.setFormat(this);
+        assembleCompositePart(compositePart, subParts);
+        return compositePart;
+    }
+	
+    public Part generateCompositePart(String name, String description, List<Part> subParts, Person author) {
+        Sequence compositeSeq = buildCompositeSequence(subParts, author);
+        Part compositePart = new Part(name, description, compositeSeq, author);
+        compositePart.setFormat(this);
+        assembleCompositePart(compositePart, subParts);
+        return compositePart;
+    }
+    
+    private Sequence buildCompositeSequence(List<Part> subParts, Person author) {
+    	StringBuilder builder = new StringBuilder();
+    	for (Part part : subParts){
+    		builder.append(part.getSequence().getSequence());
+    	}
+    	return new SimpleSequence(builder.toString(), author);
+    }
+    
+    private void assembleCompositePart(Part compositePart, List<Part> subParts) {
+    	Assembly assembly = compositePart.createAssembly();
+    	assembly.setParts(subParts);
     }
     
 }

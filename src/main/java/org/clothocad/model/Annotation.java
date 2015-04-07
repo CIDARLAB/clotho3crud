@@ -24,89 +24,93 @@ package org.clothocad.model;
 
 import java.awt.Color;
 
-import org.clothocad.core.datums.ObjBase;
+import javax.validation.constraints.NotNull;
+
+import org.clothocad.core.datums.SharableObjBase;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.clothocad.core.persistence.annotations.Reference;
 
 /**
- * An Annotation is a single line of genbank essentially.  It maps a Feature
- * or just something a user has labeled as signficant to a NucSeq.
+ * An Annotation is a single line of Genbank essentially.  It maps a Feature
+ * or just something a user has labeled as signficant on a Sequence.
  */
 
-@NoArgsConstructor
-public class Annotation extends ObjBase {
+/**
+ * 
+ * @author J. Christopher Anderson
+ * @author Nicholas Roehner
+ */
 
+public class Annotation extends SharableObjBase {
+
+	@Getter
+	@Setter
+	protected String symbol;
+    
+	@NotNull
+	@Getter
+    @Setter
+    protected boolean isForwardStrand;
+    
+    @Getter
+    @Setter
+    @Reference
+    protected Feature feature;
+    
+    @NotNull
+    @Getter
+    @Setter
+    protected int start, end;
+    
+    @Setter
+    protected Color forwardColor, reverseColor;
+	
     /**
-     * Constructor for an Annotation that is not a Feature, just a region of colored sequence
-     *
      * @param name
-     * @param nucseqid  the NucSeq that you're annotating
-     * @param forColor
-     * @param revColor
-     * @param Start
-     * @param End
-     * @param user
-     * @param plusstrandtrue
-     * @param symbol  (can be null)
+     * @param seq
+     * @param end
+     * @param start
+     * @param author
+     * @param isForwardStrand
      */
-    public Annotation( String name, NucSeq nucseq, Color forColor, Color revColor, int start, int end, Person user, boolean plusstrandtrue, String symbol ) {
-        super(name);
-
-        sequence = nucseq;
-        forwardColor = forColor;
-        reverseColor = revColor;
+   protected Annotation(String name, int start, int end, boolean isForwardStrand, Person author) {
+        super(name, author);
         this.start = start;
         this.end = end;
-        author = user;
-        isForwardStrand = plusstrandtrue;
-        this.symbol = symbol;
-        nucseq.addAnnotation(this);
+        this.isForwardStrand = isForwardStrand;
     }
-
+    
     /**
-     * Constructor for an Annotation that corresponds to a Feature object
-     * @param afeature
-     * @param nucseqid
-     * @param forColor
-     * @param revColor
-     * @param Start
-     * @param End
-     * @param user
-     * @param plusstrandtrue
-     * @param symbol
+     * @param name
+     * @param description
+     * @param seq
+     * @param end
+     * @param start
+     * @param author
+     * @param isForwardStrand
      */
-    public Annotation( Feature afeature, NucSeq nucseq, Color forColor, Color revColor, int start, int end, Person user, boolean plusstrandtrue, String symbol ) {
-        this(afeature.getName(), nucseq, forColor, revColor, start, end, user, plusstrandtrue, symbol);
-        feature = afeature;
-        if ( forColor == null ) {
-            forwardColor = afeature.getForwardColor();
-        }
-        else {
-            forwardColor = forColor;
-        }
-        if ( revColor == null ) {
-            reverseColor = afeature.getReverseColor();
-        }
-        else{
-            reverseColor = revColor;
-        }
+   protected Annotation(String name, String description, int start, int end, 
+    		boolean isForwardStrand, Person author) {
+        super(name, author, description);
+        this.start = start;
+        this.end = end;
+        this.isForwardStrand = isForwardStrand;
     }
-
-
 
     /**
      * Reverse the orientation of the annotation (reverse complement
      * it and flip flop the start and end sites).  Called from NucSeq
      * when it's reverse complemented
-     * @param nucseqLength
+     * @param seqLength
      */
-    void invert(int nucseqLength){
+    public void invert(int seqLength){
         isForwardStrand = !isForwardStrand;
         int s = start;
-        start = nucseqLength - end;
-        end = nucseqLength - s;
+        start = seqLength - end;
+        end = seqLength - s;
     }
 
     /**
@@ -115,10 +119,11 @@ public class Annotation extends ObjBase {
      * on the orientation of the annotation
      */
     public Color getColor() {
-        if ( isForwardStrand ) {
-            return forwardColor;
+        if (isForwardStrand) {
+            return getForwardColor();
+        } else {
+        	return getReverseColor();
         }
-        return reverseColor;
     }
 
     /**
@@ -126,37 +131,53 @@ public class Annotation extends ObjBase {
      * @return an integer of the Color
      */
     public int getForwardColorAsInt() {
-        return forwardColor.getRGB();
+        return getForwardColor().getRGB();
     }
     /**
      * Get the reverse color as an integer code
      * @return an integer of the Color
      */
     public int getReverseColorAsInt() {
-        return reverseColor.getRGB();
+        return getReverseColor().getRGB();
+    }
+    
+    /**
+     * Get the preferred forward color for this Annotation.  If no forward color
+     * was set, a default color will be returned.
+     * @return an AWT Color object.  It won't be null;
+     */
+    public Color getForwardColor() {
+        if (forwardColor == null) {
+        	forwardColor = new Color(125, 225, 235);
+        }
+        return forwardColor;
     }
 
-    /*-----------------
-    variables
-    -----------------*/
-    @Getter
-    private String symbol;
-
-    @Getter
-    private boolean isForwardStrand;
-    @Getter
-    @Reference
-    private Person author;
-    @Getter
-    @Reference
-    private Feature feature;
-    @Getter
-    @Reference
-    private NucSeq sequence;
-    @Getter
-    private int start, end;
-    @Getter
-    private Color forwardColor, reverseColor;
+    /**
+     * Get the preferred reverse color for this Annotation.  If no reverse color
+     * was set, a default color will be returned.
+     * @return an AWT Color object.  It won't be null;
+     */
+    public Color getReverseColor() {
+        if (reverseColor == null) {
+        	reverseColor = new Color(125, 225, 235);
+        }
+        return reverseColor;
+    }
     
+    /**
+     * Set the forward and reverse preferred colors for this feature to some
+     * random medium-bright color.
+     */
+    public void setRandomColors() {
+    	int[][] intVal = new int[2][3];
+    	for (int j = 0; j < 3; j++) {
+    		double doubVal = Math.floor(Math.random() * 155 + 100);
+    		intVal[0][j] = (int) doubVal;
+    		intVal[1][j] = 255 - intVal[0][j];
+    	}
+    	forwardColor = new Color(intVal[0][0], intVal[0][1], intVal[0][2]);
+    	reverseColor = new Color(intVal[1][0], intVal[1][1], intVal[1][2]);
+    }
 
 }

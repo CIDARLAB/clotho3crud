@@ -6,24 +6,25 @@ package org.clothocad.model;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.clothocad.core.datums.ObjBase;
-import org.clothocad.core.datums.ObjectId;
 
-@NoArgsConstructor
+import lombok.NoArgsConstructor;
+
+import org.clothocad.core.datums.ObjectId;
+import org.clothocad.model.Feature.FeatureRole;
+
 public class NucSeq 
-		extends ObjBase 
+		extends Sequence 
 		implements Serializable {
 
     /**
@@ -42,14 +43,8 @@ public class NucSeq
     private boolean isDegenerate, isLinear, isRNA;
     private boolean isLocked;
     
-    @Getter
-    private Set<Annotation> annotations;
-    
-    @NotNull
-    private String sequence;
-    
-    public NucSeq( String inputSeq, boolean strandedness, boolean circularity ) {
-        super("nucseq");
+    public NucSeq( String inputSeq, boolean strandedness, boolean circularity, Person author) {
+        super("nucseq", inputSeq, author);
 
         isSingleStranded = strandedness;
         isCircular = circularity;
@@ -64,8 +59,8 @@ public class NucSeq
     }
 
     //alternate constuctor if circularity and strandedness isn't specified
-    public NucSeq( String inputSeq ) {
-        this( inputSeq, false, false );
+    public NucSeq(String inputSeq, Person author) {
+        this(inputSeq, false, false, author);
     }
     
     private static final ImmutableList<String> START_CODONS = ImmutableList.of(
@@ -172,7 +167,7 @@ public class NucSeq
      */
     @SuppressWarnings (value="unchecked")
     public HashMap<Integer, Integer> findORFs(boolean forward, boolean multipleStartCodons) {
-        String seq = sequence;
+        String seq = sequence; 
         int len = seqLength();
         HashMap orfs = new HashMap();
         if (isCircular()) {
@@ -498,13 +493,13 @@ public class NucSeq
         int mid;
         if (len % 2 == 0) {
             mid = len / 2;
-            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid,len)).revComp())) {
+            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid,len), new Person("Temp")).revComp())) {
                 dS += -1.4;
             }
         }
         else {
             mid = (len - 1) / 2;
-            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid + 1,len)).revComp())) {
+            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid + 1,len), new Person("Temp")).revComp())) {
                 dS += -1.4;
             }
         }
@@ -798,7 +793,7 @@ public class NucSeq
                 }
                 int start = matcher.start();
                 int end = matcher.end();
-                if(f.isCDS()) {
+                if(f.getRole().equals(FeatureRole.CDS)) {
                     try {
                         //For CDS features, if the 5' sequences is a start codon, include that in annotation
                         String fiveprime = text[i].substring(start-3, start);
@@ -818,7 +813,7 @@ public class NucSeq
                     } catch(Exception e) {
                     }
                 }
-                Annotation annot = new Annotation( f, this, null, null, start, end, user, true, null );
+                Annotation annot = createAnnotation(f.getName(), start, end, true, user);
                 System.out.println( "I found a forward annotation at " + start );
                 //setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
             }
@@ -837,7 +832,7 @@ public class NucSeq
                 int index = sequence.length() - matcher.start();
                 int start = index - teststring.length();
                 int end = index;
-                if(f.isCDS()) {
+                if(f.getRole().equals(FeatureRole.CDS)) {
                     try {
                         //For CDS features, if the 5' sequences is a an RC stop codon, include it
                         String fiveprime = text[i].substring(start-3, start);
@@ -857,7 +852,7 @@ public class NucSeq
                     } catch(Exception e) {
                     }
                 }
-                Annotation annot = new Annotation( f, this, null, null, start, end, user, false, null );
+                Annotation annot = createAnnotation(f.getName(), start, end, true, user);
                 System.out.println( "I found a reverse annotation at " + start );
                 //setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
             }
@@ -865,20 +860,12 @@ public class NucSeq
     }
 
     public void removeAnnotations() {
-        annotations = new HashSet<Annotation>();
+        annotations = new LinkedList<Annotation>();
         //setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
     }
 
     void setLocked( boolean isit ) {
         isLocked = isit;
-    }
-
-    /**
-     * Add a user-defined non-Feature Annotation
-     * @param annotation
-     */
-    void addAnnotation(Annotation annotation){
-        annotations.add(annotation);
     }
 
     public ArrayList<Integer> find( NucSeq seq ) {
@@ -1152,7 +1139,7 @@ public class NucSeq
         if(afeature==null) {
             return;
         }
-        String seq = afeature.getSequence().getSeq();
+        String seq = afeature.getSequence().getSequence();
         featureTable.put(afeature, seq.replaceAll("N", "."));
     }
 
