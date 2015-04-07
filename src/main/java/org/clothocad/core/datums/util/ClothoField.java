@@ -1,28 +1,12 @@
-/*
- * 
-Copyright (c) 2010 The Regents of the University of California.
-All rights reserved.
-Permission is hereby granted, without written agreement and without
-license or royalty fees, to use, copy, modify, and distribute this
-software and its documentation for any purpose, provided that the above
-copyright notice and the following two paragraphs appear in all copies
-of this software.
-
-IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY
-FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
-ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
-THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGE.
-
-THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
-PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF
-CALIFORNIA HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
-ENHANCEMENTS, OR MODIFICATIONS..
- */
-
 package org.clothocad.core.datums.util;
+
+import org.clothocad.core.datums.ObjBase;
+import org.clothocad.core.datums.ObjectId;
+import org.clothocad.core.persistence.annotations.Reference;
+import org.clothocad.core.persistence.annotations.ReferenceCollection;
+import org.clothocad.core.schema.Access;
+import org.clothocad.core.schema.Constraint;
+import org.clothocad.core.schema.Schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -37,10 +21,15 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.lang.Object;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -51,49 +40,34 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import lombok.Getter;
-import lombok.Setter;
-import org.clothocad.core.datums.ObjBase;
-import org.clothocad.core.datums.ObjectId;
-import org.clothocad.core.persistence.annotations.Reference;
-import org.clothocad.core.persistence.annotations.ReferenceCollection;
-import org.clothocad.core.schema.Access;
-import org.clothocad.core.schema.Constraint;
-import org.clothocad.core.schema.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import sun.reflect.annotation.AnnotationType;
-/**
- * @author John Christopher Anderson
- */
 
 @Getter
 @Setter
 public class ClothoField {
-    
+
     private ClothoField() {}
-    
-    public ClothoField(Field field){
-        
-        if (field.getAnnotation(JsonProperty.class) != null){
+
+    public ClothoField(Field field) {
+
+        if (field.getAnnotation(JsonProperty.class) != null) {
             name = field.getAnnotation(JsonProperty.class).value();
         } else {
-            name = field.getName();            
+            name = field.getName();
         }
-        
+
         type = field.getType();
         reference = field.getAnnotation(Reference.class) != null;
         referenceCollection = field.getAnnotation(ReferenceCollection.class) != null;
-        
+
         //TODO: access, validate
-        
+
         //TODO: metadata
         //example
         //description
     }
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ClothoField.class);
-    
+
     public ClothoField(String name, Class type, String example, String description, boolean reference, Access access) {
         this.name = name;
         this.type = type;
@@ -102,17 +76,16 @@ public class ClothoField {
         this.reference = reference;
         this.description = description;
     }
-    
 
     private String name;
-    
+
     @Getter
     @JsonSerialize(using = ClothoFieldTypeSerializer.class)
     @JsonDeserialize(using = ClothoFieldTypeDeserializer.class)
     private Class<?> type;
     private Type subtype;
     private String example;   //A string representation/explanation of an expected value
-    private Access access;  
+    private Access access;
     private boolean reference;
     private boolean referenceCollection;
 
@@ -123,23 +96,25 @@ public class ClothoField {
 
     //metadata
     private String description;
-    
-    public String getSetterName(){
+
+    public String getSetterName() {
         return "set" + capitalize(name);
     }
-    
-    public String getGetterName(){
-        if (this.type.equals(Boolean.class)) return "is" + capitalize(name);
-        else return "get" + capitalize(name);
+
+    public String getGetterName() {
+        if (this.type.equals(Boolean.class)) {
+            return "is" + capitalize(name);
+        }
+        return "get" + capitalize(name);
     }
-    
-    private static String capitalize(String s){
+
+    private static String capitalize(String s) {
         if (s.length() == 0) return s;
         return s.substring(0,1).toUpperCase() + s.substring(1);
     }
-    
+
     //XXX: needs more specific type info (parameterization) in some cases
-    public static class ClothoFieldTypeDeserializer extends JsonDeserializer<Class<?>>{
+    public static class ClothoFieldTypeDeserializer extends JsonDeserializer<Class<?>> {
 
         @Override
         public Class<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
@@ -147,7 +122,7 @@ public class ClothoField {
                 throw ctxt.wrongTokenException(jp, JsonToken.VALUE_STRING, "Expected type name as string");
             }
             String typeName = jp.getValueAsString();
-            switch (typeName){
+            switch (typeName) {
                 case "id":
                     return ObjectId.class;
                 case "date":
@@ -175,10 +150,10 @@ public class ClothoField {
         public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException, JsonProcessingException {
             return deserialize(jp,ctxt);
         }
-        
+
     }
-    
-    public static class ClothoFieldTypeSerializer extends JsonSerializer<Class<?>>{
+
+    public static class ClothoFieldTypeSerializer extends JsonSerializer<Class<?>> {
 
         @Override
         public void serialize(Class<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
@@ -186,45 +161,44 @@ public class ClothoField {
         }
 
     }
-    
-    public static String jsonifyFieldType(Class c){
-        
+
+    public static String jsonifyFieldType(Class c) {
+
         if (ObjBase.class.isAssignableFrom(c)) return c.getCanonicalName();
         if (ObjectId.class.isAssignableFrom(c)) return "id";
         if (Date.class.isAssignableFrom(c)) return "date";
         if (String.class.isAssignableFrom(c) || c.equals(char.class)) return "string";
         if (Boolean.class.isAssignableFrom(c) || c.equals(boolean.class)) return "boolean";
-        if (Number.class.isAssignableFrom(c) || 
-                c.equals(byte.class) || 
+        if (Number.class.isAssignableFrom(c) ||
+                c.equals(byte.class) ||
                 c.equals(short.class) ||
                 c.equals(int.class) ||
                 c.equals(long.class) ||
                 c.equals(float.class) ||
                 c.equals(double.class)) return "number"; //String.format("number(%s)", c.getSimpleName());
-        if (c.isArray() || Collection.class.isAssignableFrom(c)){
+        if (c.isArray() || Collection.class.isAssignableFrom(c)) {
            //todo: parameterize array types;
             return "array";
-            
         }
         if (Map.class.isAssignableFrom(c)) return "object";
         logger.warn("Unable to jsonify field type {}", c.getName());
         return "object";
     }
     //Constraints
-    
+
     //#
     //multipleof
     //maximum
     //exclusivemaximum
     //minimum
     //exclusiveminimum
-    
+
     //size
     //pattern (regex match)
-    
-    
+
+
     //notnull
-    
+
     public static Type getParameterizedType(Type type) {
         int index = 0;
         if (type instanceof ParameterizedType) {
@@ -243,7 +217,7 @@ public class ClothoField {
                         // TODO: Figure out what to do... Walk back up the to
                         // the parent class and try to get the variable type
                         // from the T/V/X
-//						throw new MappingException("Generic Typed Class not supported:  <" + ((TypeVariable) paramType).getName() + "> = " + ((TypeVariable) paramType).getBounds()[0]);
+//                      throw new MappingException("Generic Typed Class not supported:  <" + ((TypeVariable) paramType).getName() + "> = " + ((TypeVariable) paramType).getBounds()[0]);
                         return paramType;
                     } else if (paramType instanceof Class) {
                         return (Class) paramType;
@@ -255,8 +229,8 @@ public class ClothoField {
         }
         return null;
     }
-    
-    
+
+
     public static class ConstraintDeserializer extends JsonDeserializer<Constraint> {
 
         @Override
@@ -295,18 +269,16 @@ public class ClothoField {
                 t = jp.nextToken();
             }
             //cannot create constraint without a declared type
-            if (constraintType == null)  {
-                
-            }
+            if (constraintType == null)  {}
             //use annotation class to find out property types
             //ignore properties not in annotation class
             Map<String,Object> values = new HashMap<>();
             jp = tokens.asParser();
             t = jp.nextToken();
-            
-            if (jp.hasCurrentToken()){
+
+            if (jp.hasCurrentToken()) {
                 t = jp.nextToken();
-                while (t != JsonToken.END_OBJECT){
+                while (t != JsonToken.END_OBJECT) {
                     if (t != JsonToken.FIELD_NAME) throw ctxt.wrongTokenException(jp, JsonToken.FIELD_NAME, "Constraint parameter values malformed");
                     String name = jp.getCurrentName();
                     jp.nextToken();
@@ -320,7 +292,7 @@ public class ClothoField {
                         throw new RuntimeException("Couldn't access field " + jp.getCurrentName() + " in " + constraintType.getCanonicalName());
                     }
                     t = jp.nextToken();
-                }               
+                }
             }
 
             return new Constraint(constraintType, values);
@@ -331,5 +303,5 @@ public class ClothoField {
             return deserialize(jp, ctxt); //To change body of generated methods, choose Tools | Templates.
         }
     }
-    
+
 }

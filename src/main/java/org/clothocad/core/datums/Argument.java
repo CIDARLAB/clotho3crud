@@ -1,8 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.clothocad.core.datums;
+
+import org.clothocad.core.persistence.IdUtils;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -16,21 +14,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.clothocad.core.persistence.IdUtils;
 
-/**
- *
- * @author spaige
- */
 @NoArgsConstructor
 @Slf4j
 public class Argument {
@@ -78,7 +73,6 @@ public class Argument {
         if (c.isArray() || Collection.class.isAssignableFrom(c)) {
             //todo: parameterize array types;
             return "array";
-
         }
         if (Map.class.isAssignableFrom(c)) {
             return "object";
@@ -86,6 +80,7 @@ public class Argument {
         log.warn("Unable to jsonify field type {}", c.getName());
         return "object";
     }
+
     protected final static Map<String, Class> classMap;
 
     static {

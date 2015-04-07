@@ -1,14 +1,15 @@
 package org.clothocad.core.datums;
 
+import org.clothocad.core.persistence.annotations.Reference;
+import org.clothocad.core.persistence.annotations.ReferenceCollection;
+import org.clothocad.core.persistence.jackson.JSONViews;
+import org.clothocad.core.persistence.jackson.WideningDefaultTypeResolverBuilder;
+import org.clothocad.core.security.Visibility;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonTypeResolver;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,16 +17,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.clothocad.core.persistence.annotations.Reference;
-import org.clothocad.core.persistence.annotations.ReferenceCollection;
-import org.clothocad.core.persistence.jackson.JSONViews;
-import org.clothocad.core.persistence.jackson.WideningDefaultTypeResolverBuilder;
-import org.clothocad.core.security.Visibility;
 
-/**
- *
- * @author spaige
- */
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 @EqualsAndHashCode(exclude = {"dateCreated", "lastModified", "lastAccessed", "isDeleted"})
 @Data()
 @NoArgsConstructor
@@ -40,7 +39,7 @@ public abstract class ObjBase {
     public ObjBase(String name) {
         this.name = name;
     }
-    
+
     @JsonView(JSONViews.IdOnly.class)
     //@JsonProperty("_id")
     private ObjectId id;
@@ -51,7 +50,7 @@ public abstract class ObjBase {
     private Date dateCreated;
     @JsonView(JSONViews.Internal.class)
     private Date lastModified, lastAccessed;
-    
+
     @Getter
     @Setter
     private Visibility visibility;
@@ -82,23 +81,15 @@ public abstract class ObjBase {
                 if (java.util.Collection.class.isInstance(value)) {
                     //TODO: not typesafe
                     children.addAll((java.util.Collection) value);
-
-                } 
-                else if (value.getClass().isArray()){
+                } else if (value.getClass().isArray()) {
                     List list = Arrays.asList((Object[])value);
                     children.addAll(list);
-                }
-                //add else if for map. 
-                
-                else if(value instanceof Map)
-                {
+                } else if(value instanceof Map) {
                     Map<ObjBase, Object> mapval = (Map)(value);
-                   for(Map.Entry<ObjBase, Object> entry : mapval.entrySet())
-                   {
+                    for(Map.Entry<ObjBase, Object> entry : mapval.entrySet()) {
                        children.add(entry.getKey());
-                   }
-                }
-                else {
+                    }
+                } else {
                     children.add((ObjBase) value);
                 }
             } catch (IllegalArgumentException | IllegalAccessException ex) {
