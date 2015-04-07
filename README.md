@@ -1,22 +1,15 @@
-Clotho
-======
+Clotho CRUD
+===========
 
-Clotho is a framework for building synthetic biology software. 
+Clotho CRUD is a Java library that helps manage the data used for building synthetic biology software. 
 
 Installation
 ------------
-You can download the latest installer from 
-http://www.clothocad.org/index.php/download
-
-Instructions for building from source are at 
-https://github.com/CIDARLAB/clotho3/wiki/Installing-Clotho-3.0
+In Progress
 
 Documentation
 -------------
-User documentation for clotho is located at http://clothohelp.org
-
-https://github.com/CIDARLAB/clotho3/wiki contains information that may
-be more useful for developers.
+In Progress
 
 Contact
 -------
