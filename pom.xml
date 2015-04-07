@@ -1,15 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.clothocad</groupId>
     <artifactId>clotho</artifactId>
-    <version>3.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Clotho</name>
+    <name>ClothoCRUD</name>
     <url>http://clothocad.org</url>
     <build>
         <plugins>
@@ -22,12 +22,13 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+        <!--
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.18</version>
                 <configuration>
-                    <!-- skips surefire tests without skipping failsafe tests.
-                    Property value seems to magically default to false -->
+                    ###skips surefire tests without skipping failsafe tests.
+                    Property value seems to magically default to false###
                     <skipTests>${skip.unittests}</skipTests>
                 </configuration>
             </plugin>
@@ -47,61 +48,6 @@
                                 <property name="maven.classpath" refid="maven.runtime.classpath"/>
                                 <property name="maven.test.classpath" refid="maven.test.classpath"/>
                             </target>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--
-            <plugin>
-                <groupId>com.github.klieber</groupId>
-                <artifactId>phantomjs-maven-plugin</artifactId>
-                <version>0.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>install</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <version>1.9.2</version>
-                </configuration>
-            </plugin>
-            -->
-            <plugin>
-                <groupId>com.github.searls</groupId>
-                <artifactId>jasmine-maven-plugin</artifactId>
-                <version>2.0-alpha-01</version>
-                <configuration>
-                    <jsTestSrcDir>${project.basedir}/src/test/js/jasmine</jsTestSrcDir>
-                    <jsSrcDir>${project.basedir}/src/test/js/lib</jsSrcDir>
-                    <preloadSources>
-                        <source>webjars/q.js</source>
-                        <source>clotho3api.js</source>
-                    </preloadSources>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>integration-test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
-                            <webDriverCapabilities>
-                                <capability>
-                                    <name>phantomjs.binary.path</name>
-                                    <value>${phantomjs.binary}</value>
-                                </capability>
-                                <capability>
-                                    <name>phantomjs.cli.args</name>
-                                    <list>
-                                        <value>--ignore-ssl-errors=true</value>
-                                        <value>--ssl-protocol=any</value>
-                                        <value>--web-security=false</value>
-                                    </list>
-                                </capability>
-                            </webDriverCapabilities>
                         </configuration>
                     </execution>
                 </executions>
@@ -127,7 +73,7 @@
                             </arguments>
                             <waitAfterLaunch>45</waitAfterLaunch>
                             <workingDir>..</workingDir>
-                            <!--<processLogFile>clothoIntegrationServer.log</processLogFile>-->
+                            ###<processLogFile>clothoIntegrationServer.log</processLogFile>###
                         </configuration>
                     </execution>
                     <execution>
@@ -139,195 +85,68 @@
                     </execution>
                 </executions>
             </plugin>
+        -->
         </plugins>
     </build>
-    
+
     <dependencies>
-	
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
-        </dependency>        
-            
-        <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>1.4.4</version>
-        </dependency>
-    
-        <dependency>
-            <groupId>net.sf.flexjson</groupId>
-            <artifactId>flexjson</artifactId>
-            <version>3.0</version>
-        </dependency>
-    
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>catalina</artifactId>
-            <version>6.0.30</version>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>8.1.10.v20130312</version>
-        </dependency>
-    
-    
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>8.1.10.v20130312</version>
-        </dependency>
-	
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>8.1.10.v20130312</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-websocket</artifactId>
-            <version>8.1.10.v20130312</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-client</artifactId>
-            <version>9.0.2.v20130417</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>1.3.0</version>
-        </dependency> 
-
-        <dependency>
-            <groupId>org.python</groupId>
-            <artifactId>jython</artifactId>
-            <version>2.5.3</version>
-            <type>jar</type>
-        </dependency>
-    
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jms_1.1_spec</artifactId>
-            <version>1.1.1</version>
-            <type>jar</type>
-        </dependency>
-    
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.12.4</version>
             <type>jar</type>
         </dependency>
-    
-    
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-    
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
             <version>1.0.0.GA</version>
             <type>jar</type>
         </dependency>
-    
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>4.3.1.Final</version>
             <type>jar</type>
         </dependency>
-    
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>10.0.1</version>
             <type>jar</type>
         </dependency>
-    
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-	
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
             <type>jar</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>apollo-broker</artifactId>
-            <version>1.6</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jackson-databind</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.stompjms</groupId>
-            <artifactId>stompjms-client</artifactId>
-            <version>1.16</version>
-        </dependency>
-
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <version>4.1</version>
             <type>jar</type>
         </dependency>
-        
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.11</version>
-        </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>2.11.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-            <version>2.1.3</version>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>apollo-stomp</artifactId>
-            <version>1.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-daemon</groupId>
-            <artifactId>commons-daemon</artifactId>
-            <version>1.0.15</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino</artifactId>
-            <version>1.7R3</version>
-        </dependency>
-		
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
@@ -347,42 +166,9 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.2.3</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>0.9.9-RC1</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sourceforge.htmlunit</groupId>
-            <artifactId>htmlunit</artifactId>
-            <version>2.12</version>
-        </dependency>
-        <dependency>
-            <artifactId>xml-apis</artifactId>
-            <groupId>xml-apis</groupId>
-            <type>jar</type>
-            <version>1.4.01</version>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>2.7.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml</groupId>
-            <artifactId>jackson-xml-databind</artifactId>
-            <version>0.6.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.49</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.inject.extensions</groupId>
@@ -400,11 +186,6 @@
             <version>1.2.2</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-rewrite</artifactId>
-            <version>8.1.10.v20130312</version>
-        </dependency>
-        <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
@@ -420,20 +201,33 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>3.1</version>
+            <groupId>org.python</groupId>
+            <artifactId>jython</artifactId>
+            <version>2.5.3</version>
+            <type>jar</type>
         </dependency>
-
         <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>q</artifactId>
-            <version>1.0.1</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>8.1.10.v20130312</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <version>4.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <artifactId>xml-apis</artifactId>
+            <groupId>xml-apis</groupId>
+            <type>jar</type>
+            <version>1.4.01</version>
         </dependency>
     </dependencies>
-	
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-  
+
 </project>
