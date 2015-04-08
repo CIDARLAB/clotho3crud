@@ -1,14 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.clothocad.model;
 
-import java.util.List;
+import org.clothocad.core.datums.ObjBase;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.clothocad.core.datums.ObjBase;
+
+import java.util.List;
 
 /**
  *

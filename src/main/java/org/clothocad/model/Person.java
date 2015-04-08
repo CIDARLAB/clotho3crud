@@ -1,32 +1,11 @@
-/*
-Copyright (c) 2009 The Regents of the University of California.
-All rights reserved.
-Permission is hereby granted, without written agreement and without
-license or royalty fees, to use, copy, modify, and distribute this
-software and its documentation for any purpose, provided that the above
-copyright notice and the following two paragraphs appear in all copies
-of this software.
-
-IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY
-FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
-ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
-THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-SUCH DAMAGE.
-
-THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
-PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF
-CALIFORNIA HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
-ENHANCEMENTS, OR MODIFICATIONS..
- */
 package org.clothocad.model;
 
+import org.clothocad.core.datums.SharableObjBase;
 import org.clothocad.core.persistence.annotations.Reference;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.clothocad.core.datums.SharableObjBase;
 
 /**
  *
@@ -34,27 +13,23 @@ import org.clothocad.core.datums.SharableObjBase;
  */
 @NoArgsConstructor
 public class Person extends SharableObjBase {
+
     @Getter
     @Setter
     @Reference
     private Collection myCollection;
-    
+
     @Getter
     @Setter
     private String givenName, surName, nickName, emailAddress, snailMailAddress;
-    
+
     @Getter
     @Setter
     private String primaryEmail;
-    
-    
+
     //@Getter
     //@Setter
     //private boolean isPrimaryAccount;
-    
-    
-    
-    
 
     /**Constructor from raw data
      *
@@ -65,13 +40,11 @@ public class Person extends SharableObjBase {
     //valid or nonexistent email
     public Person( String displayname) {
         //XXX:  Do people have authors?
-        super(displayname,null);
+        super(displayname, null);
         //changePassword( rawPassword );
         myCollection = new Collection();
         //biography = new WikiText("");
     }
-
-    
 
     /* SETTERS
      * */
@@ -88,7 +61,7 @@ public class Person extends SharableObjBase {
      *
      * @param isit
      */
-    public final void setAsAdministrator( boolean isit ) {
+    public final void setAsAdministrator(boolean isit) {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 
@@ -188,14 +161,9 @@ public class Person extends SharableObjBase {
      * Change the user's display name
      * @param str a String
      */
-    public final void setDisplayName( String str ) {
+    public final void setDisplayName(String str) {
         setName(str);
     }
-
-
-
-
-
 
     /* GETTERS
      * */
@@ -206,7 +174,7 @@ public class Person extends SharableObjBase {
      * @param name
      * @return
      */
-    public static Person retrieveByName( String name ) {
+    public static Person retrieveByName(String name) {
         throw new UnsupportedOperationException();
     }
 
@@ -222,8 +190,6 @@ public class Person extends SharableObjBase {
     /*public final boolean checkPassword( String raw ) {
      throw new UnsupportedOperationException();
     }*/
-
-
 
     /*private boolean hasChangeClearance() {
         //If it's a new Person, changes are OK
@@ -264,12 +230,6 @@ public class Person extends SharableObjBase {
         return getName();
     }
 
-
-
-
-
-
-
     /**
      * Get the personal Collection of this object
      * @return a Collection ObjBase
@@ -278,9 +238,9 @@ public class Person extends SharableObjBase {
         return myCollection;
     }
 
-
     @Override
     public String toString() {
         return getName();
     }
+
 }

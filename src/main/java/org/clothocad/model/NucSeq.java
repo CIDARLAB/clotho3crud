@@ -1,8 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.clothocad.model;
+
+import org.clothocad.core.datums.ObjectId;
+import org.clothocad.model.Feature.FeatureRole;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -18,14 +17,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lombok.NoArgsConstructor;
+public class NucSeq extends Sequence implements Serializable {
 
-import org.clothocad.core.datums.ObjectId;
-import org.clothocad.model.Feature.FeatureRole;
-
-public class NucSeq 
-		extends Sequence 
-		implements Serializable {
+    private boolean isSingleStranded, isCircular;
+    // are linear and circular mutually exclusive?
+    private boolean isDegenerate, isLinear, isRNA;
+    private boolean isLocked;
 
     /**
      * Constructor for a NucSeq (dna sequence) object.  The sequence ends up in the
@@ -37,76 +34,64 @@ public class NucSeq
      * @param strandedness
      * @param circularity
      */
-    
-    private boolean isSingleStranded, isCircular;
-    //are linear and circular mutually exclusive?
-    private boolean isDegenerate, isLinear, isRNA;
-    private boolean isLocked;
-    
-    public NucSeq( String inputSeq, boolean strandedness, boolean circularity, Person author) {
+    public NucSeq(String inputSeq, boolean strandedness, boolean circularity, Person author) {
         super("nucseq", inputSeq, author);
-
         isSingleStranded = strandedness;
         isCircular = circularity;
         lowerArray = new boolean[ inputSeq.length() ];
-        if ( !initiateNucSeq( inputSeq ) ) {
+        if (!initiateNucSeq(inputSeq)) {
             return;
         }
 
-
-        //NEED TO USE A DIFFERENT OBJBASE CONSTRUCTOR TO SET HASH AS UUID
-        //_myUUID = generateUUIDAsHash(getSeq());
+        // NEED TO USE A DIFFERENT OBJBASE CONSTRUCTOR TO SET HASH AS UUID
+        // _myUUID = generateUUIDAsHash(getSeq());
     }
 
-    //alternate constuctor if circularity and strandedness isn't specified
+    // alternate constuctor if circularity and strandedness isn't specified
     public NucSeq(String inputSeq, Person author) {
         this(inputSeq, false, false, author);
     }
-    
+
     private static final ImmutableList<String> START_CODONS = ImmutableList.of(
             "ATG", 
             "GTG",
             "TGG",
             "RTG");
-    
+
     private static final ImmutableList<String> STOP_CODONS = ImmutableList.of(
             "TAA",
             "TAG",
             "TGA",
             "TRA",
             "TAR");
-        
-   
 
-    public boolean initiateNucSeq( String inputSeq ) {
-        
-        if(inputSeq == null) {
+    public boolean initiateNucSeq(String inputSeq) {
+
+        if (inputSeq == null) {
             sequence = null;
             return false;
         }
 
         char currentchar;
         StringBuffer seq = new StringBuffer();
-        lowerArray = new boolean[ inputSeq.length() ];
+        lowerArray = new boolean[inputSeq.length()];
 
-        //Check whether this is an RNA, DNA, or a bad seq, and if is degenerate:
-        loopy:
-        for ( int i = 0; i < inputSeq.length(); i++ ) {
-            currentchar = inputSeq.charAt( i );
-            char upperChar = Character.toUpperCase( currentchar );
+        // Check whether this is an RNA, DNA, or a bad seq, and if is degenerate:
+        for (int i = 0; i < inputSeq.length(); i++) {
+            currentchar = inputSeq.charAt(i);
+            char upperChar = Character.toUpperCase(currentchar);
 
-            //Put the case in a format array
-            if ( currentchar == upperChar ) {
+            // Put the case in a format array
+            if (currentchar == upperChar) {
                 lowerArray[i] = false;
             } else {
                 lowerArray[i] = true;
             }
 
-            //Build up the new format-free sequence
-            seq.append( upperChar );
+            // Build up the new format-free sequence
+            seq.append(upperChar);
 
-            switcheroo:
-            switch ( upperChar ) {
+            switch (upperChar) {
                 case '.':
                     isLinear = true;
                     break;
@@ -140,19 +125,16 @@ public class NucSeq
         sequence = seq.toString();
         return true;
     }
-    
-    
-    public Map<String,Object> getNucSeqMap() throws IllegalArgumentException, IllegalAccessException
-    {
+
+    public Map<String,Object> getNucSeqMap() throws IllegalArgumentException, IllegalAccessException {
         Map<String,Object> nucsmap = new HashMap<String,Object>();
-        
         Field nseqFields[] = NucSeq.class.getDeclaredFields();
-        for(Field nsfield:nseqFields)
-        {
+
+        for (Field nsfield : nseqFields) {
             nsfield.setAccessible(true);
             nucsmap.put(nsfield.getName(), nsfield.get(this));
         }
-        
+
         return nucsmap;
     }
 
@@ -176,16 +158,17 @@ public class NucSeq
 
         Pattern pattern = Pattern.compile(makeORFRegExp(multipleStartCodons, isDegenerate()), Pattern.CASE_INSENSITIVE);
         Matcher matcher;
+
         if (forward) {
             matcher = pattern.matcher(seq);
-        }
-        else {
+        } else {
             matcher = pattern.matcher(revComp());
         }
 
         int end;
         int start;
         int pos = 0;
+
         while (matcher.find(pos)) {
             start = matcher.start();
             end = matcher.end();
@@ -197,8 +180,7 @@ public class NucSeq
             if (!(start >= len || matcher.group().length() > len)) {
                 if (forward) {
                     orfs.put(start, end);
-                }
-                else {
+                } else {
                     orfs.put(len - start, len - end);
                 }
             }
@@ -219,29 +201,25 @@ public class NucSeq
             for (int i = 0; i < START_CODONS.size(); i++) {
                 if (i + 1 < START_CODONS.size()) {
                     regexp = regexp + seqToRegExp(START_CODONS.get(i), allowDegen) + "|";
-                }
-                else {
+                } else {
                     regexp = regexp + seqToRegExp(START_CODONS.get(i), allowDegen) + ")";
                 }
             }
-        }
-        else {
+        } else {
             regexp = regexp + seqToRegExp(START_CODONS.get(0), allowDegen) + ")";
         }
         regexp = regexp + "(...)*?(";
         for (int i = 0; i < STOP_CODONS.size(); i++) {
             if (i + 1 < STOP_CODONS.size()) {
                 regexp = regexp + seqToRegExp(STOP_CODONS.get(i), allowDegen) + "|";
-            }
-            else {
+            } else {
                 regexp = regexp + seqToRegExp(STOP_CODONS.get(i), allowDegen) + ")";
             }
         }
         return regexp;
     }
 
-    
-    //TODO: cache regexified versions of start and stop codons
+    // TODO: cache regexified versions of start and stop codons
     /**
      * Takes a sequence and transforms it into a regular expression for
      * searches.
@@ -255,7 +233,7 @@ public class NucSeq
         String suffix = "";
         int rootstart = 0;
         int rootend = seq.length();
-        if (seq.indexOf("<") != -1   ||   seq.indexOf(">") != -1) {
+        if (seq.indexOf("<") != -1 || seq.indexOf(">") != -1) {
             for (int i = 0; i < seq.length(); i++) {
                 c = seq.substring(i,i+1);
                 if (c.equalsIgnoreCase("<")) {
@@ -264,9 +242,8 @@ public class NucSeq
                     while (matcher.find()) {
                         prefix = "(" + prefix + matcher.group() + ")?";
                     }
-                    rootstart = i+1;
-                }
-                else if (c.equalsIgnoreCase(">")) {
+                    rootstart = i + 1;
+                } else if (c.equalsIgnoreCase(">")) {
                     Pattern pattern = Pattern.compile(".", Pattern.CASE_INSENSITIVE);
                     Matcher matcher = pattern.matcher(seq.replaceFirst(regexp,""));
                     int counter = 0;
@@ -279,68 +256,64 @@ public class NucSeq
                         suffix = suffix + ")?";
                     }
                     rootend = i;
-                }
-                else {
+                } else {
                     regexp = regexp + c;
                 }
             }
         }
 
-        //System.out.println("Is");
-
         regexp = prefix + seq.substring(rootstart, rootend) + suffix;
 
         if (degen) {
-            //The following block strings the regex and protects with @ symbol
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[aA][a-z[A-Z]]*"))
+            // The following block strings the regex and protects with @ symbol
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[aA][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[aA]", "[A@D@H@M@N@R@V@W]");
-            //System.out.println("here?C " + regexp.length());
+            // System.out.println("here?C " + regexp.length());
             // (regexp.matches("[a-z[A-Z]\\[\\]]*\\]?(?<!@)[cC]\\[?[a-z[A-Z]\\[\\]]*"))
                 regexp = regexp.replaceAll("(?<!@)[cC]", "[@BC@H@M@N@S@V@Y]");
-            //System.out.println("here?G " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]\\]]*(?<!@)[gG][a-z[A-Z]\\[]*"))
+            // System.out.println("here?G " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]\\]]*(?<!@)[gG][a-z[A-Z]\\[]*"))
                 regexp = regexp.replaceAll("(?<!@)[gG]", "[@B@DG@K@N@R@S@V]");
-            //System.out.println("here?T " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]\\]]*(?<!@)[tT][a-z[A-Z]\\[]*"))
+            // System.out.println("here?T " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]\\]]*(?<!@)[tT][a-z[A-Z]\\[]*"))
                 regexp = regexp.replaceAll("(?<!@)[tT]", "[@B@D@H@K@NT@W@Y]");
-            //System.out.println("here?U " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[uU][a-z[A-Z]]*"))
+            // System.out.println("here?U " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[uU][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[uU]", "[@B@D@H@K@NU@W@Y]");
-            //System.out.println("here?B " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[bB][a-z[A-Z]]*"))
+            // System.out.println("here?B " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[bB][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[bB]", "[BC@DG@H@K@M@N@R@STU@V@W@Y]");
-            //System.out.println("here?D " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[dD][a-z[A-Z]]*"))
+            // System.out.println("here?D " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[dD][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[dD]", "[ABDG@H@K@M@N@R@STU@V@W@Y]");
-            //System.out.println("here?H " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[hH][a-z[A-Z]]*"))
+            // System.out.println("here?H " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[hH][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[hH]", "[ABCDH@K@M@N@R@STU@V@W@Y]");
-            //System.out.println("here?K " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[kK][a-z[A-Z]]*"))
+            // System.out.println("here?K " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[kK][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[kK]", "[BDGHK@N@R@STU@V@W@Y]");
-            //System.out.println("here?M " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[mM][a-z[A-Z]]*"))
+            // System.out.println("here?M " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[mM][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[mM]", "[ABCDHM@N@R@S@V@W@Y]");
-            //System.out.println("here?N " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[nN][a-z[A-Z]]*"))
+            // System.out.println("here?N " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[nN][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[nN]", "[ABCDGHKMN@R@STU@V@W@Y]");
-            //System.out.println("here?R " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[rR][a-z[A-Z]]*"))
+            // System.out.println("here?R " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[rR][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[rR]", "[ABDGHKMNR@S@V@W]");
-            //System.out.println("here?S " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[sS][a-z[A-Z]]*"))
+            // System.out.println("here?S " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[sS][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[sS]", "[BCDGHKMNRS@V@Y]");
-            //System.out.println("here?V " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[vV][a-z[A-Z]]*"))
+            // System.out.println("here?V " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[vV][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[vV]", "[ABCDGHKMNRSV@W@Y]");
-            //System.out.println("here?W " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[wW][a-z[A-Z]]*"))
+            // System.out.println("here?W " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[wW][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[wW]", "[ABDHKMNRTUVW@Y]");
-            //System.out.println("here?Y " + regexp.length());
-            //if (regexp.matches("[a-z[A-Z]]*(?<!@)[yY][a-z[A-Z]]*"))
+            // System.out.println("here?Y " + regexp.length());
+            // if (regexp.matches("[a-z[A-Z]]*(?<!@)[yY][a-z[A-Z]]*"))
                 regexp = regexp.replaceAll("(?<!@)[yY]", "[BCDHKMNSTUVWY]");
-        }
-        else {
+        } else {
             regexp = regexp.replaceAll("(?<!@)[bB]", "[CGTU]");
             regexp = regexp.replaceAll("(?<!@)[dD]", "[AGTU]");
             regexp = regexp.replaceAll("(?<!@)[hH]", "[ACTU]");
@@ -355,14 +328,14 @@ public class NucSeq
             degen = true;
         }
 
-        //System.out.println("here?# " + regexp.length());
+        // System.out.println("here?# " + regexp.length());
         if (regexp.indexOf("#") != -1)
             regexp = regexp.replaceAll("#", "[ABCDGHKMNRSTUVWY]*?");
 
-        //Unprotect
+        // Unprotect
         regexp = regexp.replaceAll("@", "");
 
-        //System.out.println("This Heap Space?");
+        // System.out.println("This Heap Space?");
 
         return regexp;
     }
@@ -385,8 +358,7 @@ public class NucSeq
             if (n.matches("[CGS]")) {
                 gcMin++;
                 gcMax++;
-            }
-            else if (n.matches("[RYMKBDHVN]")) {
+            } else if (n.matches("[RYMKBDHVN]")) {
                 gcMax++;
             }
         }
@@ -398,7 +370,6 @@ public class NucSeq
         return gc;
     }
 
-
     /**
      * Determines the approximate melting point (Celsius) of a sequence of DNA
      * using a Nearest-Neighbor method, assuming 1.0 M [NaCl] and
@@ -406,7 +377,7 @@ public class NucSeq
      *
      */
     public double meltingTemp () {
-        
+
         /* Resources:
          * http://en.wikipedia.org/wiki/DNA_melting#Nearest-neighbor_method
          * http://www.basic.northwestern.edu/biotools/oligocalc.html
@@ -429,8 +400,7 @@ public class NucSeq
         if (init == 'G' || init == 'C') {
             dH += 0.1;
             dS += -2.8;
-        }
-        else if (init == 'A' || init == 'T') {
+        } else if (init == 'A' || init == 'T') {
             dH += 2.3;
             dS += 4.1;
         }
@@ -438,8 +408,7 @@ public class NucSeq
         if (init == 'G' || init == 'C') {
             dH += 0.1;
             dS += -2.8;
-        }
-        else if (init == 'A' || init == 'T') {
+        } else if (init == 'A' || init == 'T') {
             dH += 2.3;
             dS += 4.1;
         }
@@ -450,40 +419,31 @@ public class NucSeq
             if (pair.equals("AA") || pair.equals("TT")) {
                 dH += -7.9;
                 dS += -22.2;
-            }
-            else if (pair.equals("AG") || pair.equals("CT")) {
+            } else if (pair.equals("AG") || pair.equals("CT")) {
                 dH += -7.8;
                 dS += -21.0;
-            }
-            else if (pair.equals("AT")) {
+            } else if (pair.equals("AT")) {
                 dH += -7.2;
                 dS += -20.4;
-            }
-            else if (pair.equals("AC") || pair.equals("GT") ) {
+            } else if (pair.equals("AC") || pair.equals("GT") ) {
                 dH += -8.4;
                 dS += -22.4;
-            }
-            else if (pair.equals("GA") || pair.equals("TC")) {
+            } else if (pair.equals("GA") || pair.equals("TC")) {
                 dH += -8.2;
                 dS += -22.2;
-            }
-            else if (pair.equals("GG") || pair.equals("CC")) {
+            } else if (pair.equals("GG") || pair.equals("CC")) {
                 dH += -8.0;
                 dS += -19.9;
-            }
-            else if (pair.equals("GC")) {
+            } else if (pair.equals("GC")) {
                 dH += -9.8;
                 dS += -24.4;
-            }
-            else if (pair.equals("TA")) {
+            } else if (pair.equals("TA")) {
                 dH += -7.2;
                 dS += -21.3;
-            }
-            else if (pair.equals("TG") || pair.equals("CA")) {
+            } else if (pair.equals("TG") || pair.equals("CA")) {
                 dH += -8.5;
                 dS += -22.7;
-            }
-            else if (pair.equals("CG") ) {
+            } else if (pair.equals("CG") ) {
                 dH += -10.6;
                 dS += -27.2;
             }
@@ -493,13 +453,12 @@ public class NucSeq
         int mid;
         if (len % 2 == 0) {
             mid = len / 2;
-            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid,len), new Person("Temp")).revComp())) {
+            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid, len), new Person("Temp")).revComp())) {
                 dS += -1.4;
             }
-        }
-        else {
+        } else {
             mid = (len - 1) / 2;
-            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid + 1,len), new Person("Temp")).revComp())) {
+            if (seq.substring(0, mid).equals(new NucSeq(seq.substring(mid + 1, len), new Person("Temp")).revComp())) {
                 dS += -1.4;
             }
         }
@@ -512,10 +471,9 @@ public class NucSeq
 
         temp = (dH / (dS + (R * logCt))) - 273.15;
 
-        //return temp;
+        // return temp;
         return temp;
     }
-
 
     /**
      * Reverse complement this NucSeq.  The case will be saved with this
@@ -526,12 +484,12 @@ public class NucSeq
         StringBuffer seq = new StringBuffer();
         boolean[] newLower = new boolean[ sequence.length() ];
 
-        for ( int x = (sequence.length() - 1); x >= 0; x-- ) {
-            currentchar = sequence.charAt( x );
+        for (int x = (sequence.length() - 1); x >= 0; x--) {
+            currentchar = sequence.charAt(x);
             char appendChar = ' ';
-            switch ( currentchar ) {   // (Assume N is an integer variable.)
+            switch ( currentchar) {   // (Assume N is an integer variable.)
                 case 'A':
-                    if ( isRNA ) {
+                    if (isRNA) {
                         appendChar = 'U';
                     } else {
                         appendChar = 'T';
@@ -588,21 +546,21 @@ public class NucSeq
                 default:
                     break;
             }
-            seq.append( appendChar );
-            if ( lowerArray[x] ) {
-                appendChar = Character.toLowerCase( appendChar );
+            seq.append(appendChar);
+            if (lowerArray[x]) {
+                appendChar = Character.toLowerCase(appendChar);
                 newLower[sequence.length() - x - 1] = true;
             } else {
                 newLower[sequence.length() - x - 1] = false;
             }
         }
 
-        //update the sequence
+        // update the sequence
         lowerArray = newLower;
         if(changeSeq(seq.toString())) {
-            //Invert all annotations
-            for ( Annotation an : annotations ) {
-                an.invert( seq.length() );
+            // Invert all annotations
+            for (Annotation an : annotations) {
+                an.invert(seq.length());
             }
         }
 
@@ -619,12 +577,12 @@ public class NucSeq
         StringBuffer seq = new StringBuffer();
         char currentchar;
 
-        for ( int x = (sequence.length() - 1); x >= 0; x-- ) {
-            currentchar = sequence.charAt( x );
+        for (int x = (sequence.length() - 1); x >= 0; x--) {
+            currentchar = sequence.charAt(x);
             char outchar = ' ';
-            switch ( currentchar ) {   // (Assume N is an integer variable.)
+            switch (currentchar) { // (Assume N is an integer variable.)
                 case 'A':
-                    if ( isRNA ) {
+                    if (isRNA) {
                         outchar = 'U';
                     } else {
                         outchar = 'T';
@@ -681,8 +639,8 @@ public class NucSeq
                 default:
                     break;
             }
-            seq.append( outchar );
-        }  // end for loop
+            seq.append(outchar);
+        }
         return seq.toString();
     }
 
@@ -691,7 +649,7 @@ public class NucSeq
      * @return a String in Genbank format
      */
     public String getGenbank() {
-        //return getGenbank( new Person[]{ Collector.getCurrentUser() } );
+        // return getGenbank( new Person[]{ Collector.getCurrentUser() } );
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -701,7 +659,7 @@ public class NucSeq
      * @param users
      * @return a String in Genbank format
      */
-    public String getGenbank( Person[] users ) {
+    public String getGenbank(Person[] users) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -711,9 +669,9 @@ public class NucSeq
      *
      * The Person is used as the author of the Annotation
      */
-    public void autoAnnotate( Person user) {
-        System.out.println( "I'm autoannotating your nucSeq from all database features" );
-        autoAnnotate( null, user, false );
+    public void autoAnnotate(Person user) {
+        System.out.println("I'm autoannotating your nucSeq from all database features");
+        autoAnnotate(null, user, false);
     }
 
     /**
@@ -723,13 +681,13 @@ public class NucSeq
      * The Person is used as the author of the Annotation
      * @param col
      */
-    public void autoAnnotate( Collection col, Person user ) {
+    public void autoAnnotate(Collection col, Person user) {
         Set<Feature> allfeatures = new HashSet<Feature>(col.getAll(Feature.class));
-        System.out.println( "Autoannotating with all features from a particular collection:" );
-        for ( Feature f : allfeatures ) {
-            System.out.println( "autoannotate with " + f.getId() );
+        System.out.println("Autoannotating with all features from a particular collection:");
+        for (Feature f : allfeatures) {
+            System.out.println("autoannotate with " + f.getId());
         }
-        autoAnnotate( allfeatures, user, true );
+        autoAnnotate(allfeatures, user, true);
     }
 
     /**
@@ -746,18 +704,18 @@ public class NucSeq
      * @param user  the Person to be set as author of the Annotation
      * @param constrainTo true if should constrain annotations to supplied list, otherwise false
      */
-    public void autoAnnotate( Set<Feature> onlyFeatures, Person user, Boolean constrainTo ) {
-        if ( !featuresInitiated ) {
+    public void autoAnnotate(Set<Feature> onlyFeatures, Person user, Boolean constrainTo) {
+        if (!featuresInitiated) {
             initiateFeatureTable();
         }
 
         String revcomp = this.revComp();
 
-        for ( Feature f : featureTable.keySet()) {
-            if(constrainTo) {
-                if ( onlyFeatures != null ) {
-                    if ( !onlyFeatures.contains( f ) ) {
-                        System.out.println( f.getId() + " is not requested" );
+        for (Feature f : featureTable.keySet()) {
+            if (constrainTo) {
+                if (onlyFeatures != null) {
+                    if (!onlyFeatures.contains(f)) {
+                        System.out.println(f.getId() + " is not requested");
                         continue;
                     }
                 }
@@ -782,108 +740,104 @@ public class NucSeq
     private void testFeature(String teststring, Feature f, Person user, String revcomp ) {
         Pattern p = Pattern.compile(teststring);
 
-        //Check Feature exact matches in forward orientation
+        // Check Feature exact matches in forward orientation
         String[] text = {sequence};
         for (int i = 0; i < text.length; i++) {
             Matcher matcher = p.matcher(text[i]);
             while (matcher.find()) {
-                System.out.println( "start=" + matcher.start() + " end = " + matcher.end());
-                if(f==null || f.isDeleted()) {
+                System.out.println("start=" + matcher.start() + " end = " + matcher.end());
+                if (f == null || f.isDeleted()) {
                     return;
                 }
                 int start = matcher.start();
                 int end = matcher.end();
-                if(f.getRole().equals(FeatureRole.CDS)) {
+                if (f.getRole().equals(FeatureRole.CDS)) {
                     try {
-                        //For CDS features, if the 5' sequences is a start codon, include that in annotation
-                        String fiveprime = text[i].substring(start-3, start);
+                        // For CDS features, if the 5' sequences is a start codon, include that in annotation
+                        String fiveprime = text[i].substring(start - 3, start);
                         System.out.println("fiveprime is " + fiveprime);
-                        if(fiveprime.equals("ATG") || fiveprime.equals("TTG") || fiveprime.equals("GTG")) {
-                            start = start-3;
+                        if (fiveprime.equals("ATG") || fiveprime.equals("TTG") || fiveprime.equals("GTG")) {
+                            start = start - 3;
                         }
-                    } catch(Exception e) {
-                    }
+                    } catch(Exception e) {}
                     try {
-                        //For CDS features, if the 3' sequences is a stop codon, include that in annotation
-                        String threeprime = text[i].substring(end, end+3);
+                        // For CDS features, if the 3' sequences is a stop codon, include that in annotation
+                        String threeprime = text[i].substring(end, end + 3);
                         System.out.println("threeprime is " + threeprime);
-                        if(threeprime.equals("TAA") || threeprime.equals("TGA") || threeprime.equals("TAG")) {
-                            end = end+3;
+                        if (threeprime.equals("TAA") || threeprime.equals("TGA") || threeprime.equals("TAG")) {
+                            end = end + 3;
                         }
-                    } catch(Exception e) {
-                    }
+                    } catch(Exception e) {}
                 }
                 Annotation annot = createAnnotation(f.getName(), start, end, true, user);
-                System.out.println( "I found a forward annotation at " + start );
-                //setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
+                System.out.println("I found a forward annotation at " + start);
+                // setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
             }
 
         }
 
-        //Check it as reverse complement
+        // Check it as reverse complement
         String[] text2 = {revcomp};
         for (int i = 0; i < text.length; i++) {
             Matcher matcher = p.matcher(text2[i]);
             while (matcher.find()) {
-                System.out.println( "start=" + matcher.start() + " end = " + matcher.end());
-                if(f==null || f.isDeleted()) {
+                System.out.println("start=" + matcher.start() + " end = " + matcher.end());
+                if (f == null || f.isDeleted()) {
                     return;
                 }
                 int index = sequence.length() - matcher.start();
                 int start = index - teststring.length();
                 int end = index;
-                if(f.getRole().equals(FeatureRole.CDS)) {
+                if (f.getRole().equals(FeatureRole.CDS)) {
                     try {
-                        //For CDS features, if the 5' sequences is a an RC stop codon, include it
-                        String fiveprime = text[i].substring(start-3, start);
+                        // For CDS features, if the 5' sequences is a an RC stop codon, include it
+                        String fiveprime = text[i].substring(start - 3, start);
                         System.out.println("fiveprime is " + fiveprime);
-                        if(fiveprime.equals("TTA") || fiveprime.equals("TCA") || fiveprime.equals("CTA")) {
-                            start = start-3;
+                        if (fiveprime.equals("TTA") || fiveprime.equals("TCA") || fiveprime.equals("CTA")) {
+                            start = start - 3;
                         }
-                    } catch(Exception e) {
-                    }
+                    } catch(Exception e) {}
                     try {
-                        //For CDS features, if the 3' sequences is a an RC start codon, include that in annotation
-                        String threeprime = text[i].substring(end, end+3);
+                        // For CDS features, if the 3' sequences is a an RC start codon, include that in annotation
+                        String threeprime = text[i].substring(end, end + 3);
                         System.out.println("threeprime is " + threeprime);
-                        if(threeprime.equals("CAT") || threeprime.equals("CAA") || threeprime.equals("CAC")) {
-                            end = end+3;
+                        if (threeprime.equals("CAT") || threeprime.equals("CAA") || threeprime.equals("CAC")) {
+                            end = end + 3;
                         }
-                    } catch(Exception e) {
-                    }
+                    } catch(Exception e) {}
                 }
                 Annotation annot = createAnnotation(f.getName(), start, end, true, user);
-                System.out.println( "I found a reverse annotation at " + start );
-                //setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
+                System.out.println("I found a reverse annotation at " + start);
+                // setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
             }
         }
     }
 
     public void removeAnnotations() {
         annotations = new LinkedList<Annotation>();
-        //setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
+        // setChanged(org.clothocore.api.dnd.RefreshEvent.Condition.ANNOTATION_TO_NUCSEQ);
     }
 
-    void setLocked( boolean isit ) {
+    void setLocked(boolean isit) {
         isLocked = isit;
     }
 
-    public ArrayList<Integer> find( NucSeq seq ) {
+    public ArrayList<Integer> find(NucSeq seq) {
         ArrayList<Integer> out = new ArrayList<Integer>();
         String testSeq = seq.sequence;
 
         int start = 0;
         searchforward:
-        while ( true ) {
-            String test = sequence.substring( start );
-            System.out.println( test.substring( 0, 100 ) );
-            int b = test.indexOf( testSeq );
-            if ( b > 0 ) {
-                out.add( b + start );
-                System.out.println( "for adding: " + b );
+        while (true) {
+            String test = sequence.substring(start);
+            System.out.println(test.substring(0, 100));
+            int b = test.indexOf(testSeq);
+            if (b > 0) {
+                out.add(b + start);
+                System.out.println("for adding: " + b);
                 start += b;
                 start += 1;
-                System.out.println( "New start: " + start );
+                System.out.println("New start: " + start);
             } else {
                 break searchforward;
             }
@@ -892,46 +846,46 @@ public class NucSeq
         testSeq = seq.revComp();
         start = 0;
         searchreverse:
-        while ( true ) {
-            String test = sequence.substring( start );
-            System.out.println( test.substring( 0, 100 ) );
-            int b = test.indexOf( testSeq );
-            if ( b > 0 ) {
-                out.add( b + start );
-                System.out.println( "for adding: " + b );
+        while (true) {
+            String test = sequence.substring(start);
+            System.out.println(test.substring(0, 100));
+            int b = test.indexOf(testSeq);
+            if (b > 0) {
+                out.add(b + start);
+                System.out.println("for adding: " + b);
                 start += b;
                 start += 1;
-                System.out.println( "New start: " + start );
+                System.out.println("New start: " + start);
             } else {
                 break searchreverse;
             }
         }
-        if ( out.size() == 0 ) {
-            System.out.println( "I didn't find any" );
+        if (out.size() == 0) {
+            System.out.println("I didn't find any");
         }
         return out;
     }
 
-    public String translate( int frame ) {
-        return translate( frame, sequence.length() );
+    public String translate(int frame) {
+        return translate(frame, sequence.length());
     }
 
-    public String translate( int start, int end ) {
+    public String translate(int start, int end) {
         int extra = (end - start) % 3;
         if ( extra % 3 > 0 ) {
-            System.out.println( "You gave me an invalid translation query: " + sequence.substring( start, end ) );
+            System.out.println("You gave me an invalid translation query: " + sequence.substring(start, end));
             return "*";
         }
-        String seq = sequence.substring( start, end );
+        String seq = sequence.substring(start, end);
 
         int value;
         int i = 0;
         String acodon = "";
         String outSeq = "";
-        while ( i < seq.length() ) {
-            acodon = seq.substring( i, i + 3 );
-            if ( translation.containsKey( acodon ) ) {
-                int anum = translation.get( acodon );
+        while (i < seq.length()) {
+            acodon = seq.substring(i, i + 3);
+            if (translation.containsKey(acodon)) {
+                int anum = translation.get(acodon);
                 outSeq += (char) anum;
             } else {
                 outSeq += "?";
@@ -942,8 +896,8 @@ public class NucSeq
         return outSeq;
     }
 
-    public char getCharAt( int i ) {
-        return sequence.charAt( i );
+    public char getCharAt(int i) {
+        return sequence.charAt(i);
     }
 
     public int seqLength() {
@@ -970,10 +924,9 @@ public class NucSeq
         return isSingleStranded;
     }
 
-
     public Set<ObjectId> getAnnotationLinks() {
         Set<ObjectId> out = new HashSet<ObjectId>();
-        for (Annotation a : annotations){
+        for (Annotation a : annotations) {
             out.add(a.getId());
         }
         return out;
@@ -986,12 +939,12 @@ public class NucSeq
     @Override
     public String toString() {
         StringBuffer seq = new StringBuffer();
-        for ( int i = 0; i < sequence.length(); i++ ) {
-            char letter = sequence.charAt( i );
-            if ( lowerArray[i] ) {
-                letter = Character.toLowerCase( letter );
+        for (int i = 0; i < sequence.length(); i++) {
+            char letter = sequence.charAt(i);
+            if (lowerArray[i]) {
+                letter = Character.toLowerCase(letter);
             }
-            seq.append( letter );
+            seq.append(letter);
         }
         return seq.toString();
     }
@@ -1018,8 +971,7 @@ public class NucSeq
         return out;
     }
 
-    
-    //TODO: proper composition in Part, Vector, feature, oligo
+    // TODO: proper composition in Part, Vector, feature, oligo
     /**
      * Change the sequence of this NucSeq.  Parts, Vectors,
      * features, and oligos "lock" their NucSeq...you must
@@ -1028,21 +980,21 @@ public class NucSeq
      *
      * @param newseq
      */
-    public boolean changeSeq( String newseq ) {
-        if ( isLocked ) {
+    public boolean changeSeq(String newseq) {
+        if (isLocked) {
             return false;
         }
-        //ADD UNDO HERE FOR THESEQUENCE AND ANNOTATIONS, THEN CLEAR ANNOTATIONS
-        return APIchangeSeq( newseq );
+        // ADD UNDO HERE FOR THESEQUENCE AND ANNOTATIONS, THEN CLEAR ANNOTATIONS
+        return APIchangeSeq(newseq);
     }
 
-    boolean APIchangeSeq( String newseq ) {
+    boolean APIchangeSeq(String newseq) {
         return initiateNucSeq(newseq);
     }
 
     private static final ImmutableMap<String, Integer> translation = ImmutableMap.<String, Integer>builder()
-            .put( "TTT",  70 ) 
-       .put( "TTC",  70  )
+        .put( "TTT",  70  )
+        .put( "TTC",  70  )
         .put( "TTA",  76  )
         .put( "TTG",  76  )
         .put( "CTT",  76  )
@@ -1108,14 +1060,14 @@ public class NucSeq
             .build();
 
     public static void refreshFeatureTable() {
-        generateFeatureTable( false, true );
+        generateFeatureTable(false, true);
     }
 
     public static void initiateFeatureTable() {
-        generateFeatureTable( true, false );
+        generateFeatureTable(true, false);
     }
 
-    private static void generateFeatureTable( boolean init, boolean backgroundMode ) {
+    private static void generateFeatureTable(boolean init, boolean backgroundMode) {
         //FIXME
        /* Feature[] features = Persistor.get().get(Feature.class);
 
@@ -1136,7 +1088,7 @@ public class NucSeq
      * @param afeature
      */
     static void addFeatureToTable(Feature afeature) {
-        if(afeature==null) {
+        if (afeature == null) {
             return;
         }
         String seq = afeature.getSequence().getSequence();
@@ -1193,18 +1145,18 @@ public class NucSeq
         //Form the URL query
         String seq = getSeq();
         URL urlRobot;
-	try {
+    try {
             String urlstr = _BSLServerURL + "\"" + seq + "\"";
-	    urlRobot = new URL(urlstr);
-	} catch (Exception e) {
-	    e.printStackTrace();
+        urlRobot = new URL(urlstr);
+    } catch (Exception e) {
+        e.printStackTrace();
             return -1;
-	}
+    }
 
         XMLParser myParser = null;
-	try {
+    try {
             //Starts reading the URL
-	    InputStream urlRobotStream = urlRobot.openStream();
+        InputStream urlRobotStream = urlRobot.openStream();
 
             //Read the file and access it in an xmlParser, then close it
             try {
@@ -1215,14 +1167,14 @@ public class NucSeq
                 updateBSLServer(_updateBSLURL1);
                 return -1;
             }
-	    urlRobotStream.close();
-	} catch (java.net.ConnectException e) {
-	    System.out.println("Biosafety server not available");
+        urlRobotStream.close();
+    } catch (java.net.ConnectException e) {
+        System.out.println("Biosafety server not available");
             //Keeps count of failures.  Once pass 3 give up.
             failCount++;
             updateBSLServer(_updateBSLURL1);
             return -1;
-	} catch (java.io.IOException ex) {
+    } catch (java.io.IOException ex) {
             System.out.println("Biosafety server not available");
             failCount++;
             updateBSLServer(_updateBSLURL1);
@@ -1269,33 +1221,33 @@ public class NucSeq
     * Request that NucSeq update its biosafety server.
     */
     /*public static void updateBSLServer(String url) {
-	//Form URL of the file
-	URL urlRobot = null;
-	try {
-	    urlRobot = new URL(url);
-	} catch (Exception e) {
-	    e.printStackTrace();
+    //Form URL of the file
+    URL urlRobot = null;
+    try {
+        urlRobot = new URL(url);
+    } catch (Exception e) {
+        e.printStackTrace();
             if(!url.equals(_updateBSLURL2)) {
                 updateBSLServer(_updateBSLURL2);
                 return;
             }
-	}
+    }
 
         XMLParser myParser = null;
-	try {
+    try {
             //Starts reading the URL
-	    InputStream urlRobotStream = urlRobot.openStream();
+        InputStream urlRobotStream = urlRobot.openStream();
 
             //Read the file and access it in an xmlParser, then close it
             myParser = new XMLParser(urlRobotStream, "update" );
-	    urlRobotStream.close();
-	} catch (Exception e) {
-	    e.printStackTrace();
+        urlRobotStream.close();
+    } catch (Exception e) {
+        e.printStackTrace();
             if(!url.equals(_updateBSLURL2)) {
                 updateBSLServer(_updateBSLURL2);
                 return;
             }
-	}
+    }
         if(myParser==null) {
             return;
         }
@@ -1335,15 +1287,14 @@ public class NucSeq
         public boolean isLocked = false;
 
     }*/
-    
-    //Is there a better way to cache all features?
-    //should we cache all features?
+
+    // Is there a better way to cache all features?
+    // should we cache all features?
     private static boolean featuresInitiated = false;
     private static boolean initiating = false;
-    
-    
-    //converts feature sequence from N to . when loaded
-    //uppercases feature sequence
+
+    // converts feature sequence from N to . when loaded
+    // uppercases feature sequence
    private static Map<Feature, String> featureTable;
 
 }

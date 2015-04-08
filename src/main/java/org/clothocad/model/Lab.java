@@ -1,35 +1,32 @@
-    /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.clothocad.model;
 
+import org.clothocad.core.datums.SharableObjBase;
 import org.clothocad.core.persistence.annotations.Reference;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import org.clothocad.core.datums.SharableObjBase;
-
 
 /**
  *
  * @author jcanderson
  */
 @NoArgsConstructor
-public class Lab extends SharableObjBase{
+public class Lab extends SharableObjBase {
 
     @Getter
     @Setter
     private String department, address;
-          
+
     @Getter
     @Setter
     private String website;
+
     @Getter
     @Setter
     @Reference
     private Person PI;
+
     @Getter
     @Setter
     @Reference

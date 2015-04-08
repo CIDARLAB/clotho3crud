@@ -1,15 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.clothocad.model;
 
-import javax.validation.constraints.NotNull;
+import org.clothocad.core.datums.SharableObjBase;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.clothocad.core.datums.SharableObjBase;
+
+import javax.validation.constraints.NotNull;
 
 /**
  *org.clothocad.model.Institution

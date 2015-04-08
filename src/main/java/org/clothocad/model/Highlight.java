@@ -13,21 +13,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Highlight extends ObjBase {
 
-	//@Getter
-	private int start, end;
-	//@Getter
-	private String forColor, revColor, inference, description;
-	//@Getter
-	private boolean plusStrand;
-	//@Getter
-	private List<String> notes;
+    //@Getter
+    private int start, end;
+    //@Getter
+    private String forColor, revColor, inference, description;
+    //@Getter
+    private boolean plusStrand;
+    //@Getter
+    private List<String> notes;
 
-	private SharableObjBase refSeq;
+    private SharableObjBase refSeq;
 
-	/**
-	*public Highlight( int start, int end,
-	*	String name, String forColor, String revColor, String description,
-	*	String inference, List<String> notes, boolean plusStrand ) {
+    /**
+    *public Highlight( int start, int end,
+    *   String name, String forColor, String revColor, String description,
+    *   String inference, List<String> notes, boolean plusStrand ) {
     *    
     *    super(name);
     *    this.start = start;
