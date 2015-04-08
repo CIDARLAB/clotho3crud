@@ -27,7 +27,7 @@ public class RefResolvingJacksonEngine extends JacksonEngine implements Extended
 
     //unmarshalls document to an instance of clazz, using a cache of injectable values
     @Override
-    public <T> T unmarshall(BsonDocument document, Class clazz, InjectableValues cache) {
+    public <T> T unmarshall(BsonDocument document, Class<T> clazz, InjectableValues cache) {
         try {
             return mapping.getReader(clazz).with(cache).readValue(document.toByteArray(), 0, document.getSize());
         } catch (IOException e) {
