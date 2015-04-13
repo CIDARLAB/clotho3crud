@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Properties;
 
 public class ClothoBuilder {
-    ClothoBuilder(Properties config, Module... modulesArray) {
+    public ClothoBuilder(Properties config, Module... modulesArray) {
         List<Module> modules = Lists.asList(new ClothoModule(config), modulesArray);
         injector = Guice.createInjector(modules);
         SecurityUtils.setSecurityManager(injector.getInstance(org.apache.shiro.mgt.SecurityManager.class));
     }
 
-    ClothoBuilder(Module... modulesArray) {
+    public ClothoBuilder(Module... modulesArray) {
         this(null, modulesArray);
     }
 
