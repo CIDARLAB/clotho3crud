@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
 public class CompositeModule extends Module {
 
     @NotNull
-    @Size(min=2)
+    @Size(min=1)
     @Getter
     @Setter
     @ReferenceCollection

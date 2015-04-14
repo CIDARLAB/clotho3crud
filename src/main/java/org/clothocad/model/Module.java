@@ -44,7 +44,7 @@ public abstract class Module extends SharableObjBase {
 
     // Feel free to add more of these
     public static enum ModuleRole {
-        TRANSCRIPTION, TRANSLATION, EXPRESSION;
+        TRANSCRIPTION, TRANSLATION, EXPRESSION, COMPARTMENTALIZATION, LOCALIZATION, SENSOR, REPORTER, ACTIVATION, REPRESSION;
     }
 
 }

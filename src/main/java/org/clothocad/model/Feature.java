@@ -77,7 +77,7 @@ public class Feature extends SharableObjBase {
 
     // Feel free to add more of these
     public static enum FeatureRole {
-        PROMOTER, CDS, RBS, TERMINATOR, SCAR, SPACER, RIBOZYME;
+        PROMOTER, CDS, RBS, TERMINATOR, GENE, SCAR, SPACER, RIBOZYME;
     }
 
 }
