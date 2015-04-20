@@ -27,12 +27,6 @@ public class Polynucleotide extends SharableObjBase implements Serializable {
     @Setter
     protected Date submissionDate;
 
-    // Should be replaced with Annotations on a Sequence
-    @Getter
-    @Setter
-    @Deprecated
-    protected List<Highlight> highlights;
-
     @Getter
     @Setter
     @Reference

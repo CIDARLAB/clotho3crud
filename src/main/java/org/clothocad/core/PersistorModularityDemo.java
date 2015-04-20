@@ -7,7 +7,6 @@ import org.clothocad.model.FreeForm;
 import org.clothocad.model.Part;
 import org.clothocad.model.Person;
 import org.clothocad.model.Sequence;
-import org.clothocad.model.SimpleSequence;
 
 public class PersistorModularityDemo {
     public static void main(String[] args) {
@@ -25,7 +24,7 @@ public class PersistorModularityDemo {
         
         //use the persistor to do stuff
         Person demoPerson = new Person("Demo Person");
-        Sequence demoSeq = new SimpleSequence("ATCG", demoPerson);
+        Sequence demoSeq = new Sequence("seq", "ATCG", demoPerson);
         Part part = new Part("Demo Part", "This is a demo part.", demoSeq, demoPerson);
         part.setFormat(new FreeForm());
 

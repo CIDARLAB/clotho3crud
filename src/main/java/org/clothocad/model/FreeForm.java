@@ -51,7 +51,7 @@ public class FreeForm extends SharableObjBase implements Format {
         for (Part part : subParts) {
             builder.append(part.getSequence().getSequence());
         }
-        return new SimpleSequence(builder.toString(), author);
+        return new Sequence("seq", builder.toString(), author);
     }
 
     private void assembleCompositePart(Part compositePart, List<Part> subParts) {
