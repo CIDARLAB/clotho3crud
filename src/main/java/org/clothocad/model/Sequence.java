@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
 * @author Nicholas Roehner
 */
 @NoArgsConstructor
-public abstract class Sequence extends SharableObjBase {
+public class Sequence extends SharableObjBase {
 
     @NotNull
     @Getter
