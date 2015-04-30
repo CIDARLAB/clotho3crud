@@ -17,6 +17,7 @@ Quick Start
 Step 1: Import the relevant files into your Java class
 ```
 // Required in order to build Clotho
+import org.clothocad.core.ClothoBuilder;
 import org.clothocad.core.persistence.Persistor;
 import org.clothocad.core.persistence.jongo.JongoModule;
 import org.clothocad.core.security.nosecurity.NoSecurityModule;
@@ -28,10 +29,8 @@ import org.clothocad.model.Person;
 import org.clothocad.model.Sequence;
 import org.clothocad.model.SimpleSequence;
 ```
-Step 2: Build Clotho and get a Persistor
+Step 2: Build Clotho with the modules you want and get a Persistor
 ```
-// Setup: make a builder configured with the modules you want, then get 
-// the classes you want to use
 ClothoBuilder builder = new ClothoBuilder(
         // We have to have a security manager of some kind - this module 
         // sets up one that just does 'pass-through' checks on permissions
@@ -48,11 +47,14 @@ Sequence demoSeq = new SimpleSequence("ATCG", demoPerson);
 Part part = new Part("Demo Part", "This is a demo part.", demoSeq, demoPerson);
 part.setFormat(new FreeForm());
 
-// Save the created Schema
+// Save the created Schema to the database
 p.save(part);
 
 // Get Schemas from the database
 Part retrievedPartById = (Part) p.get(part.getId());
+
+// Delete Schema from the database
+p.delete(part.getId());
 ```
 
 Documentation
