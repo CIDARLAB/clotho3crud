@@ -1,7 +1,10 @@
 package org.clothocad.model;
 
+import lombok.NoArgsConstructor;
+
 import org.clothocad.core.datums.SharableObjBase;
 
+@NoArgsConstructor
 public class Variable extends SharableObjBase {
 
     public Variable(String name, Person author) {

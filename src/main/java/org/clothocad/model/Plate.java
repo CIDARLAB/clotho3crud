@@ -6,6 +6,7 @@ import org.clothocad.core.persistence.annotations.ReferenceCollection;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,6 +31,13 @@ public class Plate extends SharableObjBase {
 
     public Plate(String name, String description, Person author) {
         super(name, author, description);
+    }
+    
+    public void addPart(Container container) {
+    	if (containers == null) {
+    		containers = new ArrayList<Container>();
+    	}
+    	containers.add(container);
     }
 
 }

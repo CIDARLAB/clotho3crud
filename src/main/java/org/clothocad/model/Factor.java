@@ -5,10 +5,11 @@ import org.clothocad.core.persistence.annotations.Reference;
 import org.clothocad.core.persistence.annotations.ReferenceCollection;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -17,13 +18,14 @@ import javax.validation.constraints.Size;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class Factor extends ObjBase {
 
     @NotNull
     @Size(min=2)
     @Getter
     @ReferenceCollection
-    protected List<Level> levels;
+    protected Set<Level> levels;
 
     @NotNull
     @Getter
@@ -46,12 +48,16 @@ public class Factor extends ObjBase {
     }
 
     public Level createLevel(String name) {
-        if (levels == null) {
-            levels = new ArrayList<Level>();
-        }
         Level level = new Level(name);
-        levels.add(level);
+        addLevel(level);
         return level;
+    }
+    
+    public void addLevel(Level level) {
+    	if (levels == null) {
+    		levels = new HashSet<Level>();
+    	}
+    	levels.add(level);
     }
 
 }

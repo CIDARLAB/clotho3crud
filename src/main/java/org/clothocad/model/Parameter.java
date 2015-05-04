@@ -3,6 +3,7 @@ package org.clothocad.model;
 import org.clothocad.core.persistence.annotations.Reference;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import javax.validation.constraints.NotNull;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class Parameter {
 
     @NotNull
@@ -35,10 +37,9 @@ public class Parameter {
     @Reference
     protected Derivation derivation;
 
-    protected Parameter(double value, Variable variable, Units units) {
+    protected Parameter(double value, Variable variable) {
         this.value = value;
         this.variable = variable;
-        this.units = units;
     }
 
 }

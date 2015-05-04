@@ -5,6 +5,7 @@ import org.clothocad.core.persistence.annotations.ReferenceCollection;
 import org.clothocad.core.persistence.annotations.Reference;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import javax.validation.constraints.Size;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class ExperimentalDesign extends SharableObjBase {
 
     @NotNull
@@ -66,12 +68,37 @@ public class ExperimentalDesign extends SharableObjBase {
     }
 
     public ExperimentalCondition createExperimentalCondition() {
-        if (experimentalConditions == null) {
-            experimentalConditions = new HashSet<ExperimentalCondition>();
-        }
         ExperimentalCondition experimentalCondition = new ExperimentalCondition();
-        experimentalConditions.add(experimentalCondition);
+        addExperimentalCondition(experimentalCondition);
         return experimentalCondition;
+    }
+    
+    public void addExperimentalCondition(ExperimentalCondition experimentalCondition) {
+    	if (experimentalConditions == null) {
+    		experimentalConditions = new HashSet<ExperimentalCondition>();
+    	}
+    	experimentalConditions.add(experimentalCondition);
+    }
+    
+    public void addSubDesign(ExperimentalDesign subDesign) {
+    	if (subDesigns == null) {
+    		subDesigns = new HashSet<ExperimentalDesign>();
+    	}
+    	subDesigns.add(subDesign);
+    }
+    
+    public void addResponseVariable(Variable responseVariable) {
+    	if (responseVariables == null) {
+    		responseVariables = new HashSet<Variable>();
+    	}
+    	responseVariables.add(responseVariable);
+    }
+    
+    public void addControlledVariable(Variable controlledVariable) {
+    	if (controlledVariables == null) {
+    		controlledVariables = new HashSet<Variable>();
+    	}
+    	controlledVariables.add(controlledVariable);
     }
 
 }

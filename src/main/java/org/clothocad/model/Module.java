@@ -5,8 +5,10 @@ import org.clothocad.core.persistence.annotations.Reference;
 import org.clothocad.core.persistence.annotations.ReferenceCollection;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -15,6 +17,7 @@ import javax.validation.constraints.NotNull;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public abstract class Module extends SharableObjBase {
 
     @NotNull
@@ -45,6 +48,13 @@ public abstract class Module extends SharableObjBase {
     // Feel free to add more of these
     public static enum ModuleRole {
         TRANSCRIPTION, TRANSLATION, EXPRESSION, COMPARTMENTALIZATION, LOCALIZATION, SENSOR, REPORTER, ACTIVATION, REPRESSION;
+    }
+    
+    public void addInfluence(Influence influence) {
+    	if (influences == null) {
+    		influences = new HashSet<Influence>();
+    	}
+    	influences.add(influence);
     }
 
 }

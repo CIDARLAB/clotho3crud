@@ -4,12 +4,14 @@ import org.clothocad.core.datums.SharableObjBase;
 import org.clothocad.core.persistence.annotations.Reference;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
  * 
  * @author Nicholas Roehner
  */ 
+@NoArgsConstructor
 public class Medium extends SharableObjBase {
 
     @Getter

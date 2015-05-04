@@ -1,7 +1,10 @@
 package org.clothocad.model;
 
+import lombok.NoArgsConstructor;
+
 import org.clothocad.core.datums.SharableObjBase;
 
+@NoArgsConstructor
 public abstract class Derivation extends SharableObjBase {
 
     public Derivation(String name, Person author) {

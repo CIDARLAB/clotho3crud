@@ -1,6 +1,7 @@
 package org.clothocad.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class ExperimentalCondition {
 
     @NotNull
@@ -19,15 +21,16 @@ public class ExperimentalCondition {
     @Getter
     protected Set<Parameter> parameters;
 
-    protected ExperimentalCondition() {}
-
-    public Parameter createParameter(double value, Variable variable, Units units) {
-        if (parameters == null) {
-            parameters = new HashSet<Parameter>();
-        }
-        Parameter parameter = new Parameter(value, variable, units);
-        parameters.add(parameter);
+    public Parameter createParameter(double value, Variable variable) {
+        Parameter parameter = new Parameter(value, variable);
+        addParameter(parameter);
         return parameter;
     }
 
+    public void addParameter(Parameter parameter) {
+    	if (parameters == null) {
+    		parameters = new HashSet<Parameter>();
+    	}
+    	parameters.add(parameter);
+    }
 }

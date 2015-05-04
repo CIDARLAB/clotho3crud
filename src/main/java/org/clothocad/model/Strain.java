@@ -5,14 +5,17 @@ import org.clothocad.core.persistence.annotations.Reference;
 import org.clothocad.core.persistence.annotations.ReferenceCollection;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * 
  * @author Nicholas Roehner
  */ 
+@NoArgsConstructor
 public class Strain extends SharableObjBase {
 
     @Getter
@@ -31,6 +34,13 @@ public class Strain extends SharableObjBase {
 
     public Strain(String name, String description, Person author) {
         super(name, author, description);
+    }
+    
+    public void addPolynucleotide(Polynucleotide polynucleotide) {
+    	if (polynucleotides == null) {
+    		polynucleotides = new HashSet<Polynucleotide>();
+    	}
+    	polynucleotides.add(polynucleotide);
     }
 
 }

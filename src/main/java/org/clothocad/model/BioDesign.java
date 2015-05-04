@@ -5,6 +5,7 @@ import org.clothocad.core.persistence.annotations.Reference;
 import org.clothocad.core.persistence.annotations.ReferenceCollection;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.Set;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class BioDesign extends SharableObjBase {
 
     @Getter
@@ -62,13 +64,52 @@ public class BioDesign extends SharableObjBase {
         super(name, author);
     }
 
-    public Parameter createParameter(double value, Variable variable, Units units) {
-        if (parameters == null) {
-            parameters = new HashSet<Parameter>();
-        }
-        Parameter parameter = new Parameter(value, variable, units);
-        parameters.add(parameter);
+    public Parameter createParameter(double value, Variable variable) {
+        Parameter parameter = new Parameter(value, variable);
+        addParameter(parameter);
         return parameter;
+    }
+    
+    public void addParameter(Parameter parameter) {
+    	if (parameters == null) {
+    		parameters = new HashSet<Parameter>();
+    	}
+    	parameters.add(parameter);
+    }
+    
+    public void addPart(Part part) {
+    	if (parts == null) {
+    		parts = new HashSet<Part>();
+    	}
+    	parts.add(part);
+    }
+    
+    public void addPolynucleotide(Polynucleotide polynucleotide) {
+    	if (polynucleotides == null) {
+    		polynucleotides = new HashSet<Polynucleotide>();
+    	}
+    	polynucleotides.add(polynucleotide);
+    }
+    
+    public void addStrain(Strain strain) {
+    	if (strains == null) {
+    		strains = new HashSet<Strain>();
+    	}
+    	strains.add(strain);
+    }
+    
+    public void addMedium(Medium medium) {
+    	if (media == null) {
+    		media = new HashSet<Medium>();
+    	}
+    	media.add(medium);
+    }
+    
+    public void addSubDesign(BioDesign subDesign) {
+    	if (subDesigns == null) {
+    		subDesigns = new HashSet<BioDesign>();
+    	}
+    	subDesigns.add(subDesign);
     }
 
 }

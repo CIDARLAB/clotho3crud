@@ -4,6 +4,7 @@ import org.clothocad.core.datums.ObjBase;
 import org.clothocad.core.persistence.annotations.Reference;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class Level extends ObjBase {
 
     @NotNull
@@ -31,8 +33,8 @@ public class Level extends ObjBase {
         super(name);
     }
 
-    public Parameter createParameter(double value, Variable variable, Units units) {
-        parameter = new Parameter(value, variable, units);
+    public Parameter createParameter(double value, Variable variable) {
+        parameter = new Parameter(value, variable);
         return parameter;
     }
 

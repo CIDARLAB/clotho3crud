@@ -3,6 +3,7 @@ package org.clothocad.model;
 import org.clothocad.core.persistence.annotations.ReferenceCollection;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class Assembly {
 
     @Getter
@@ -21,15 +23,24 @@ public class Assembly {
 
     @Getter
     protected List<Assembly> subAssemblies;
-
-    protected Assembly() {}
     
     public Assembly createSubAssembly() {
-        if (subAssemblies == null) {
-            subAssemblies = new ArrayList<Assembly>();
-        }
         Assembly subAssembly = new Assembly();
-        subAssemblies.add(subAssembly);
+       	addSubAssembly(subAssembly);
         return subAssembly;
+    }
+    
+    public void addPart(Part part) {
+    	if (parts == null) {
+    		parts = new ArrayList<Part>();
+    	}
+    	parts.add(part);
+    }
+    
+    public void addSubAssembly(Assembly subAssembly) {
+    	if (subAssemblies == null) {
+    		subAssemblies = new ArrayList<Assembly>();
+    	}
+    	subAssemblies.add(subAssembly);
     }
 }

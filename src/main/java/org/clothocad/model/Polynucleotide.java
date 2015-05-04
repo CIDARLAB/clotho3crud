@@ -4,6 +4,7 @@ import org.clothocad.core.datums.SharableObjBase;
 import org.clothocad.core.persistence.annotations.Reference;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -12,6 +13,7 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
+@NoArgsConstructor
 public class Polynucleotide extends SharableObjBase implements Serializable {
 
     @Getter

@@ -5,6 +5,7 @@ import org.clothocad.core.persistence.annotations.ReferenceCollection;
 import org.clothocad.core.persistence.annotations.Reference;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import javax.validation.constraints.NotNull;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class Experiment extends SharableObjBase {
 
     @NotNull
@@ -48,12 +50,23 @@ public class Experiment extends SharableObjBase {
     }
 
     public ExperimentalGroup createExperimentalGroup(Set<Sample> samples) {
-        if (experimentalGroups == null) {
-            experimentalGroups = new HashSet<ExperimentalGroup>();
-        }
         ExperimentalGroup experimentalGroup = new ExperimentalGroup(samples);
-        experimentalGroups.add(experimentalGroup);
+        addExperimentalGroup(experimentalGroup);
         return experimentalGroup;
+    }
+    
+    public void addExperimentalGroup(ExperimentalGroup experimentalGroup) {
+    	if (experimentalGroups == null) {
+    		experimentalGroups = new HashSet<ExperimentalGroup>();
+    	}
+    	experimentalGroups.add(experimentalGroup);
+    }
+    
+    public void addSubExperiment(Experiment subExperiment) {
+    	if (subExperiments == null) {
+    		subExperiments = new HashSet<Experiment>();
+    	}
+    	subExperiments.add(subExperiment);
     }
 
 }

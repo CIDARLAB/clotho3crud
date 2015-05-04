@@ -4,6 +4,7 @@ import org.clothocad.core.datums.SharableObjBase;
 import org.clothocad.core.persistence.annotations.Reference;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.awt.Color;
@@ -20,6 +21,7 @@ import javax.validation.constraints.NotNull;
  * @author J. Christopher Anderson
  * @author Nicholas Roehner
  */
+@NoArgsConstructor
 public class Annotation extends SharableObjBase {
 
     @Getter

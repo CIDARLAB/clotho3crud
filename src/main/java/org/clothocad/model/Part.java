@@ -81,5 +81,12 @@ public class Part extends SharableObjBase {
         assemblies.add(assembly);
         return assembly;
     }
+    
+    public void addAssembly(Assembly assembly) {
+    	if (assemblies == null) {
+    		assemblies = new ArrayList<Assembly>();
+    	}
+    	assemblies.add(assembly);
+    }
 
 }

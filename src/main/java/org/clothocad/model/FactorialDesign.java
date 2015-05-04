@@ -3,6 +3,7 @@ package org.clothocad.model;
 import org.clothocad.core.persistence.annotations.ReferenceCollection;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import javax.validation.constraints.Size;
 *
 * @author Nicholas Roehner
 */
+@NoArgsConstructor
 public class FactorialDesign extends ExperimentalDesign {
 
     @NotNull
@@ -35,12 +37,16 @@ public class FactorialDesign extends ExperimentalDesign {
     }
 
     public Factor createFactor(String name, Variable variable) {
-        if (factors == null) {
-            factors = new HashSet<Factor>();
-        }
         Factor factor = new Factor(name, variable);
-        factors.add(factor);
+        addFactor(factor);
         return factor;
+    }
+    
+    public void addFactor(Factor factor) {
+    	if (factors == null) {
+    		factors = new HashSet<Factor>();
+    	}
+    	factors.add(factor);
     }
 
 }

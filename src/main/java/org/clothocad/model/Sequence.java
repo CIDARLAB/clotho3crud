@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -27,7 +27,7 @@ public class Sequence extends SharableObjBase {
 
     @Getter
     @Setter
-    protected List<Annotation> annotations;
+    protected Set<Annotation> annotations;
 
     @Getter
     @Setter
@@ -46,22 +46,23 @@ public class Sequence extends SharableObjBase {
 
     public Annotation createAnnotation(String name, int start, int end, boolean isForwardStrand,
             Person author) {
-        if (annotations == null) {
-            annotations = new ArrayList<Annotation>();
-        }
         Annotation annotation = new Annotation(name, start, end, isForwardStrand, author);
-        annotations.add(annotation);
+        addAnnotation(annotation);
         return annotation;
     }
 
     public Annotation createAnnotation(String name, String description, int start, int end,
             boolean isForwardStrand, Person author) {
-        if (annotations == null) {
-            annotations = new ArrayList<Annotation>();
-        }
         Annotation annotation = new Annotation(name, description, start, end, isForwardStrand, author);
-        annotations.add(annotation);
+        addAnnotation(annotation);
         return annotation;
+    }
+    
+    public void addAnnotation(Annotation annotation) {
+    	if (annotations == null) {
+    		annotations = new HashSet<Annotation>();
+    	}
+    	annotations.add(annotation);
     }
 
 }
