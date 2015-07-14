@@ -1,6 +1,9 @@
 Clotho 
 ===========================================
-CRUD (Create, Read, Update, Delete)
+
+A CRUD (Create, Read, Update, Delete) Application for Clotho 3.0
+----------------------------------------------------------------
+
 Clotho CRUD is a Java library that helps manage the data used for building synthetic biology software.
 
 Data in Clotho must adhere to specified Schemas, which may represent models from Biological Parts to entire Experimental Designs. This standardized method of storing and handling data allows for easy usage in your programs, letting you focus on everything else.
